@@ -178,7 +178,7 @@ export default function AdModal({
               </Svg>
             </View>
 
-            <Text style={styles.adTitle}>IGNITE PRO</Text>
+            <Text style={styles.adTitle}>MATCH STICKS PRO</Text>
             <Text style={styles.adSubtitle}>Brain Puzzle & Logic Challenge</Text>
 
             <View style={styles.starsRow}>
