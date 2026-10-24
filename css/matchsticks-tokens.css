@@ -1,0 +1,227 @@
+/* Matchsticks — Design Tokens & Core Components */
+:root {
+  /* Surfaces & Backgrounds */
+  --charcoal: #1B130E;
+  --charcoal-2: #2A1E16;
+  --panel: #120D0A;
+  --bg-sand: #FFF7EC;
+  --surface-card: #3A1D08;
+  
+  /* Brand Fire & Accent Palette */
+  --ember: #FF6B0A;
+  --ember-2: #FF9E1B;
+  --flame: #FFC21A;
+  --gold: #FFD34D;
+  --brown-stroke: #7A2E00;
+  --success: #22C55E;
+
+  /* Typography Colors */
+  --cream: #FFF6E8;
+  --cream-2: #FFE8C2;
+  --muted: #D8C2AE;
+  --ink-dark: #2B1400;
+
+  /* Typography Families */
+  --font-display: "Baloo 2", "Oswald", system-ui, sans-serif;
+  --font-ui: "Nunito", system-ui, sans-serif;
+
+  /* Radii */
+  --r-pill: 999px;
+  --r-card: 18px;
+  --r-frame: 36px;
+
+  /* Spacing Scale (8-pt system) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+}
+
+/* Primary Button (Glossy Flame Gradient with 3D Depth) */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--ink-dark);
+  padding: 13px 22px;
+  border-radius: var(--r-pill);
+  border: 2px solid var(--brown-stroke);
+  background: linear-gradient(180deg, var(--gold) 0%, var(--ember-2) 40%, var(--ember) 100%);
+  box-shadow: 0 5px 0 #8A3A00, 0 10px 18px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
+  user-select: none;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+
+.btn-primary:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #8A3A00, 0 4px 8px rgba(0, 0, 0, 0.25);
+}
+
+.btn-primary:disabled {
+  opacity: 0.45;
+  box-shadow: none;
+  transform: none;
+  cursor: not-allowed;
+}
+
+/* Secondary Button (Charred Wood Tone) */
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--cream-2);
+  padding: 13px 22px;
+  border-radius: var(--r-pill);
+  border: 2px solid #0A0603;
+  background: linear-gradient(180deg, #4A2E1E 0%, #24150E 100%);
+  box-shadow: 0 5px 0 #0A0603, 0 10px 18px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-secondary:hover {
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+}
+
+.btn-secondary:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #0A0603;
+}
+
+/* Matchstick Graphics & States */
+.match {
+  width: 56px;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #F3C98A 0%, #D9A05A 100%);
+  position: relative;
+  cursor: pointer;
+  transition: filter 0.2s ease, opacity 0.2s ease;
+}
+
+.match::after {
+  content: "";
+  position: absolute;
+  right: -4px;
+  top: -3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #A63E0E 0%, #7A2E12 60%, #421609 100%);
+}
+
+.match:hover {
+  filter: brightness(1.25) drop-shadow(0 0 8px var(--ember-2));
+}
+
+.match.is-removed {
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.match.is-hinted {
+  filter: drop-shadow(0 0 10px var(--flame));
+}
+
+/* Matchstick Toggle Switch */
+.toggle {
+  width: 66px;
+  height: 30px;
+  border-radius: var(--r-pill);
+  border: 2px solid #000;
+  background: #3A2417;
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+  transition: background 0.2s ease;
+}
+
+.toggle::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: 50%;
+  height: 7px;
+  transform: translateY(-50%);
+  border-radius: 99px;
+  background: linear-gradient(180deg, #F3C98A, #D9A05A);
+}
+
+.toggle::after {
+  content: "";
+  position: absolute;
+  top: 1px;
+  right: 2px;
+  width: 18px;
+  height: 26px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 28%, var(--ember-2), #A63E0E 55%, #5C1F06 100%);
+  box-shadow: 0 0 8px rgba(255, 140, 0, 0.7);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.toggle[aria-checked="false"] {
+  background: #2A211C;
+}
+
+.toggle[aria-checked="false"]::after {
+  transform: translateX(-36px);
+  background: radial-gradient(circle at 40% 28%, #888, #444 60%, #222 100%);
+  box-shadow: none;
+}
+
+/* Level Grid Nodes */
+.level-node {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 800;
+  color: #fff;
+  border: 2px solid var(--brown-stroke);
+  background: radial-gradient(circle at 35% 30%, var(--gold), #FF7A00 70%);
+  box-shadow: 0 4px 0 var(--brown-stroke);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease;
+  user-select: none;
+}
+
+.level-node:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--brown-stroke);
+}
+
+.level-node.is-current {
+  outline: 3px solid var(--flame);
+  outline-offset: 2px;
+}
+
+.level-node.is-locked {
+  background: #3A2A20;
+  color: #9A8878;
+  border-color: #1E140E;
+  box-shadow: none;
+  cursor: not-allowed;
+}

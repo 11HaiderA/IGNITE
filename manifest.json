@@ -1,0 +1,22 @@
+{
+  "name": "MATCHSTICKS — Ignite Your Mind",
+  "short_name": "MatchSticks",
+  "description": "Premium arithmetic matchstick puzzle game.",
+  "start_url": "./index.html",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "background_color": "#000000",
+  "theme_color": "#e11d2a",
+  "icons": [
+    {
+      "src": "./assets/icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./assets/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

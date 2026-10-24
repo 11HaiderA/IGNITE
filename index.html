@@ -1,0 +1,1690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#120501">
+  <title>MATCHSTICKS</title>
+
+  <!-- Google Fonts: Oswald for chunky bold typography, Rubik Burned for fire headers -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700;800;900&family=Rubik+Burned&display=swap" rel="stylesheet">
+
+  <style>
+    /* Unregister legacy service workers */
+    :root {
+      --bg-dark: #0e0502;
+      --charcoal-bg: #150904;
+      --gold-1: #ffd54f;
+      --gold-2: #ff9d00;
+      --orange-1: #ff7700;
+      --orange-2: #e04400;
+      --deep-red: #9e1b00;
+      --shadow-choco: #160400;
+      --panel-wood: #220d05;
+      --border-wood: #4d1e0c;
+      --text-gold: #ffbe33;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      margin: 0;
+      padding: 0;
+      touch-action: manipulation;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #080301;
+      font-family: 'Oswald', sans-serif;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Ambient Ember Canvas (full screen) */
+    #ambientCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Game Shell: full screen on mobile, 410px width centered container on desktop */
+    #gameApp {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      max-width: 430px;
+      max-height: 880px;
+      background: radial-gradient(circle at 50% 25%, #2a0e04 0%, #150602 60%, #0a0301 100%);
+      box-shadow: 0 0 50px rgba(255, 90, 0, 0.15), 0 20px 40px rgba(0, 0, 0, 0.8);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      z-index: 2;
+    }
+
+    @media (min-width: 480px) and (min-height: 600px) {
+      #gameApp {
+        border-radius: 36px;
+        border: 3.5px solid #ff7b00;
+        height: 92vh;
+      }
+    }
+
+    /* Screens Container */
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 24px 20px 28px;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.96);
+      transition: opacity 0.28s ease, transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    .screen.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1);
+    }
+
+    /* ==============================================================
+       HOME SCREEN (Matching Screen 1)
+    ============================================================== */
+    .home-top-bar {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      width: 100%;
+      z-index: 10;
+    }
+    .settings-circle-btn {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(180deg, #ffd454 0%, #ff8e00 40%, #c42a00 100%);
+      border: 3px solid #280a01;
+      box-shadow: 0 4px 0 #180500, 0 6px 14px rgba(255, 90, 0, 0.45);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      color: #240700;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.12s, filter 0.12s;
+    }
+    .settings-circle-btn::before {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 6px;
+      right: 6px;
+      height: 14px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.4);
+    }
+    .settings-circle-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #180500;
+    }
+
+    /* Center Hero: Vertical Matchstick + Live Fire Flame */
+    .hero-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-top: -10px;
+    }
+    .match-fire-rig {
+      position: relative;
+      width: 160px;
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #fireCanvas {
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 160px;
+      height: 180px;
+      z-index: 5;
+      pointer-events: none;
+    }
+    .standing-match {
+      position: absolute;
+      top: 50px;
+      width: 22px;
+      height: 140px;
+      z-index: 2;
+    }
+
+    /* 3D Scorched Chunky Logo */
+    .title-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-top: -6px;
+      z-index: 8;
+    }
+    .title-word {
+      position: relative;
+      height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: -2px 0;
+    }
+    .title-shadow {
+      position: absolute;
+      top: 5px;
+      font-size: 58px;
+      font-weight: 900;
+      color: #150400;
+      letter-spacing: 4px;
+      line-height: 1;
+      text-align: center;
+    }
+    .title-front {
+      position: relative;
+      font-size: 58px;
+      font-weight: 900;
+      background: linear-gradient(180deg, #ffe066 0%, #ff9800 65%, #d44000 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 4px;
+      line-height: 1;
+      text-align: center;
+      filter: drop-shadow(0 1px 1px rgba(255, 230, 100, 0.4));
+    }
+
+    /* 3D Pill Buttons Stack */
+    .btn-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: 100%;
+      max-width: 320px;
+      margin: 0 auto;
+      z-index: 10;
+    }
+    .pill-btn {
+      width: 100%;
+      height: 60px;
+      border-radius: 30px;
+      background: linear-gradient(180deg, #ffd752 0%, #ff9600 45%, #e64500 85%, #b82200 100%);
+      border: 3.5px solid #280a01;
+      box-shadow: 0 5px 0 #180500, 0 8px 18px rgba(255, 80, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .pill-btn::before {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 14px;
+      right: 14px;
+      height: 14px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.38);
+    }
+    .pill-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 1px 0 #180500, 0 3px 8px rgba(255, 80, 0, 0.3);
+    }
+    .pill-btn-text {
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: 2.5px;
+      color: #240700;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+    }
+    .play-match-icon {
+      margin-left: 12px;
+      width: 24px;
+      height: 24px;
+      transform: rotate(45deg);
+    }
+
+    /* ==============================================================
+       GAMEPLAY SCREEN (Matching Screen 2)
+    ============================================================== */
+    .gameplay-hud {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+    .hud-square-btn {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      background: #341207;
+      border: 2.5px solid #ff8800;
+      box-shadow: 0 3px 0 #180500, 0 4px 10px rgba(255, 120, 0, 0.3);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffc83b;
+      font-size: 22px;
+      font-weight: 900;
+      transition: transform 0.1s;
+    }
+    .hud-square-btn:active {
+      transform: translateY(2px);
+    }
+    .level-plaque {
+      background: linear-gradient(180deg, #441708 0%, #290d04 100%);
+      border: 2.5px solid #ff8800;
+      border-radius: 18px;
+      padding: 6px 26px;
+      box-shadow: 0 4px 0 #180500, 0 6px 14px rgba(255, 120, 0, 0.35);
+    }
+    .level-plaque-text {
+      color: #ffc83b;
+      font-size: 19px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    }
+
+    /* Matchstick Progress Bar */
+    .progress-bar-wrap {
+      width: 100%;
+      margin: 12px 0 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .progress-track-match {
+      position: relative;
+      width: 100%;
+      height: 32px;
+      background: #1a0a04;
+      border-radius: 16px;
+      border: 2px solid #5a2208;
+      display: flex;
+      align-items: center;
+      padding: 3px 6px;
+      overflow: hidden;
+    }
+    .progress-fill-match {
+      position: absolute;
+      left: 4px;
+      height: 22px;
+      border-radius: 11px;
+      background: linear-gradient(90deg, #ff5500 0%, #ffaa00 80%, #ffd454 100%);
+      box-shadow: 0 0 12px #ff8800;
+      transition: width 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+    .progress-flame-tip {
+      font-size: 18px;
+      margin-right: -8px;
+      filter: drop-shadow(0 0 6px #ff7700);
+      animation: tipFlicker 0.15s infinite alternate;
+    }
+    @keyframes tipFlicker {
+      0% { transform: scale(1) rotate(-3deg); }
+      100% { transform: scale(1.15) rotate(3deg); }
+    }
+    .progress-counter-text {
+      position: absolute;
+      right: 14px;
+      font-size: 13px;
+      font-weight: 900;
+      color: #ffd454;
+      letter-spacing: 1.5px;
+      text-shadow: 0 1px 3px #000;
+      z-index: 4;
+    }
+
+    /* Wood Planks Puzzle Board */
+    .wood-board-card {
+      width: 100%;
+      flex: 1;
+      min-height: 260px;
+      background: radial-gradient(circle at 50% 50%, #1e100a 0%, #0f0704 85%);
+      border: 3px solid #3d1709;
+      border-radius: 24px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.9), 0 8px 20px rgba(0, 0, 0, 0.6);
+      margin: 8px 0;
+      overflow: hidden;
+    }
+    .wood-board-planks {
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(90deg, transparent, transparent 48px, rgba(0,0,0,0.5) 48px, rgba(0,0,0,0.5) 50px);
+      pointer-events: none;
+      opacity: 0.6;
+    }
+    #puzzleSvg {
+      width: 95%;
+      height: 92%;
+      z-index: 3;
+    }
+
+    /* Objective Plaque */
+    .objective-plaque {
+      width: 100%;
+      background: linear-gradient(180deg, #2b1106 0%, #170702 100%);
+      border: 2.5px solid #ff7700;
+      border-radius: 16px;
+      padding: 10px 16px;
+      text-align: center;
+      box-shadow: 0 3px 0 #180500, 0 4px 10px rgba(255, 90, 0, 0.25);
+      margin-bottom: 12px;
+    }
+    .objective-main-text {
+      color: #ffaa22;
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .objective-sub-text {
+      color: #e65500;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      margin-top: 2px;
+    }
+
+    /* Gameplay Bottom Controls (RESET & HINT) */
+    .gameplay-bottom-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+    }
+    .reset-btn {
+      flex: 1;
+      height: 52px;
+      background: linear-gradient(180deg, #321307 0%, #1d0903 100%);
+      border: 3px solid #ff8800;
+      border-radius: 26px;
+      color: #ffc83b;
+      font-size: 19px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #150500, 0 4px 10px rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.1s;
+    }
+    .reset-btn:active {
+      transform: translateY(3px);
+    }
+    .hint-btn {
+      flex: 1;
+      height: 52px;
+      background: linear-gradient(180deg, #ffd752 0%, #ff9600 45%, #c72800 100%);
+      border: 3px solid #280a01;
+      border-radius: 26px;
+      color: #240700;
+      font-size: 19px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #180500, 0 6px 14px rgba(255, 90, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.1s;
+    }
+    .hint-btn::before {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 14px;
+      right: 14px;
+      height: 10px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.35);
+    }
+    .hint-btn:active {
+      transform: translateY(3px);
+    }
+
+    /* ==============================================================
+       MODALS: Levels, Settings, Pause, Win
+    ============================================================== */
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(8, 2, 0, 0.85);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s ease;
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-card {
+      width: 100%;
+      max-width: 360px;
+      background: linear-gradient(180deg, #2a0e04 0%, #150602 100%);
+      border: 3.5px solid #ff7b00;
+      border-radius: 28px;
+      padding: 22px 18px 20px;
+      box-shadow: 0 0 35px rgba(255, 80, 0, 0.35), 0 16px 30px rgba(0, 0, 0, 0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      transform: scale(0.92);
+      transition: transform 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    .modal-overlay.open .modal-card {
+      transform: scale(1);
+    }
+
+    .modal-fire-title {
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      text-align: center;
+      background: linear-gradient(180deg, #ffe066 0%, #ff8c00 70%, #d62c00 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 16px;
+      position: relative;
+    }
+
+    /* Levels Grid (Screen 3) */
+    .levels-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px 16px;
+      width: 100%;
+      max-height: 400px;
+      overflow-y: auto;
+      padding: 6px 4px 12px;
+    }
+    .level-badge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .badge-circle {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #ffd454 0%, #ff8e00 50%, #c42a00 100%);
+      border: 3px solid #280a01;
+      box-shadow: 0 4px 0 #180500, 0 6px 12px rgba(255, 90, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 0 2px 2px rgba(0, 0, 0, 0.6);
+      position: relative;
+      transition: transform 0.1s;
+    }
+    .badge-circle:active {
+      transform: translateY(3px);
+    }
+    .level-badge.current .badge-circle {
+      box-shadow: 0 0 20px #ff9400, 0 0 10px #ffe566;
+      border-color: #ffd454;
+      animation: currentPulse 1s infinite alternate;
+    }
+    @keyframes currentPulse {
+      0% { transform: scale(1); filter: drop-shadow(0 0 6px #ff7700); }
+      100% { transform: scale(1.08); filter: drop-shadow(0 0 14px #ffaa00); }
+    }
+    .level-badge.locked .badge-circle {
+      background: radial-gradient(circle at 35% 30%, #3a2218 0%, #20110a 70%, #120804 100%);
+      border-color: #1a0d07;
+      box-shadow: none;
+      color: #7a5a48;
+      cursor: not-allowed;
+    }
+    .badge-stars {
+      color: #ffc83b;
+      font-size: 12px;
+      margin-top: 4px;
+      letter-spacing: 2px;
+    }
+
+    /* Settings Rows (Screen 4) */
+    .settings-list {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin: 10px 0 18px;
+    }
+    .settings-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding: 0 4px;
+    }
+    .settings-label {
+      font-size: 16px;
+      font-weight: 900;
+      color: #ffd454;
+      letter-spacing: 1.5px;
+    }
+    .match-toggle {
+      width: 72px;
+      height: 32px;
+      border-radius: 16px;
+      background: #180903;
+      border: 2px solid #5a2208;
+      position: relative;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      padding: 2px 4px;
+      transition: background 0.2s;
+    }
+    .match-toggle.on {
+      background: #3a1506;
+      border-color: #ff8800;
+    }
+    .toggle-shaft {
+      position: absolute;
+      left: 6px;
+      right: 6px;
+      height: 6px;
+      background: linear-gradient(180deg, #d8a05a 0%, #aa7030 100%);
+      border-radius: 3px;
+    }
+    .toggle-head {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #ff5533 0%, #d41a00 65%, #6a0000 100%);
+      box-shadow: 0 0 10px #ff5500;
+      left: 3px;
+      transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    .match-toggle.on .toggle-head {
+      transform: translateX(41px);
+      box-shadow: 0 0 14px #ffaa00;
+    }
+
+    /* Pause Menu (Screen 4) */
+    .pause-layout {
+      display: flex;
+      width: 100%;
+      gap: 14px;
+      margin-top: 8px;
+    }
+    .pause-side-icons {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .pause-icon-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #ffd454 0%, #ff8e00 60%, #c42a00 100%);
+      border: 2.5px solid #280a01;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: #240700;
+      cursor: pointer;
+      box-shadow: 0 3px 0 #180500;
+    }
+    .pause-menu-card {
+      flex: 1;
+      background: #ff8800;
+      border: 3px solid #280a01;
+      border-radius: 20px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: inset 0 0 10px rgba(255, 230, 100, 0.4), 0 4px 10px rgba(0, 0, 0, 0.5);
+    }
+    .pause-menu-title {
+      font-size: 22px;
+      font-weight: 900;
+      color: #240700;
+      text-align: center;
+      letter-spacing: 2px;
+    }
+    .menu-action-btn {
+      width: 100%;
+      padding: 10px 0;
+      border-radius: 20px;
+      border: 2px solid #240700;
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      text-align: center;
+      box-shadow: 0 3px 0 #180500;
+    }
+    .menu-action-btn.primary {
+      background: linear-gradient(180deg, #ffd752 0%, #ff9600 50%, #d62c00 100%);
+      color: #240700;
+    }
+    .menu-action-btn.secondary {
+      background: linear-gradient(180deg, #321307 0%, #1d0903 100%);
+      color: #ffc83b;
+    }
+
+    /* Modal Back / Close button */
+    .modal-bottom-btn {
+      margin-top: 14px;
+      width: 160px;
+      height: 48px;
+      border-radius: 24px;
+      background: linear-gradient(180deg, #ffd752 0%, #ff9600 45%, #c72800 100%);
+      border: 3px solid #280a01;
+      color: #240700;
+      font-size: 19px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #180500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-bottom-btn:active {
+      transform: translateY(3px);
+    }
+  </style>
+</head>
+<body>
+  <!-- Ambient floating fiery embers -->
+  <canvas id="ambientCanvas"></canvas>
+
+  <!-- Main Game Frame -->
+  <div id="gameApp">
+
+    <!-- ==============================================================
+         1. HOME SCREEN (Matching Screen 1 of Reference)
+    ============================================================== -->
+    <section class="screen active" id="screenHome">
+      <!-- Top Bar: Settings Logo on Right Top as requested -->
+      <div class="home-top-bar">
+        <button class="settings-circle-btn" id="btnOpenSettings" title="Settings">⚙</button>
+      </div>
+
+      <!-- Hero Section: Standing Handcrafted Matchstick with Live Animated Fire -->
+      <div class="hero-center">
+        <div class="match-fire-rig">
+          <!-- Live Canvas Fire Flame -->
+          <canvas id="fireCanvas"></canvas>
+
+          <!-- Upright Standing Matchstick SVG -->
+          <svg class="standing-match" viewBox="0 0 24 140">
+            <!-- Wood shaft -->
+            <rect x="5" y="24" width="14" height="116" rx="3" fill="url(#heroWoodGrad)" />
+            <!-- Wood grain striation -->
+            <line x1="8" y1="36" x2="8" y2="130" stroke="#bb8245" stroke-width="1.2" opacity="0.6" />
+            <line x1="14" y1="42" x2="14" y2="120" stroke="#fce4b3" stroke-width="1" opacity="0.4" />
+            <!-- Charred transition zone -->
+            <rect x="5" y="22" width="14" height="14" rx="2" fill="url(#heroCharGrad)" />
+            <!-- Sulfur match head -->
+            <ellipse cx="12" cy="18" rx="10" ry="14" fill="url(#heroHeadGrad)" />
+            <ellipse cx="9" cy="14" rx="3" ry="4" fill="#ffffff" opacity="0.75" />
+          </svg>
+        </div>
+
+        <!-- 3D Chunky Scorched Title -->
+        <div class="title-box">
+          <div class="title-word">
+            <span class="title-shadow">MATCH</span>
+            <span class="title-front">MATCH</span>
+          </div>
+          <div class="title-word">
+            <span class="title-shadow">STICKS</span>
+            <span class="title-front">STICKS</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3D Beveled Pill Button Stack: PLAY (with match), LEVELS, HOW TO PLAY -->
+      <div class="btn-stack">
+        <!-- PLAY Button -->
+        <button class="pill-btn" id="btnPlay">
+          <span class="pill-btn-text">PLAY</span>
+          <!-- Realistic Matchstick Icon inside Play button -->
+          <svg class="play-match-icon" viewBox="0 0 20 20">
+            <rect x="8" y="4" width="4" height="13" rx="1.5" fill="#e5b66d" />
+            <ellipse cx="10" cy="4" rx="3.5" ry="4.5" fill="#e62e00" />
+            <ellipse cx="8.5" cy="3" rx="1.2" ry="1.6" fill="#fff" opacity="0.8" />
+          </svg>
+        </button>
+
+        <!-- LEVELS Button -->
+        <button class="pill-btn" id="btnLevels">
+          <span class="pill-btn-text">LEVELS</span>
+        </button>
+
+        <!-- HOW TO PLAY Button (replaces settings per user instructions) -->
+        <button class="pill-btn" id="btnHowToPlay">
+          <span class="pill-btn-text">HOW TO PLAY</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ==============================================================
+         2. GAMEPLAY SCREEN (Matching Screen 2 of Reference)
+    ============================================================== -->
+    <section class="screen" id="screenGameplay">
+      <!-- Top HUD: Undo (left), Level Plaque (center), Pause (right) -->
+      <div class="gameplay-hud">
+        <button class="hud-square-btn" id="btnUndo" title="Undo Move">↷</button>
+        <div class="level-plaque">
+          <span class="level-plaque-text" id="hudLevelText">LEVEL 1</span>
+        </div>
+        <button class="hud-square-btn" id="btnPause" title="Pause">⏸</button>
+      </div>
+
+      <!-- Burning Matchstick Progress Bar -->
+      <div class="progress-bar-wrap">
+        <div class="progress-track-match">
+          <div class="progress-fill-match" id="progressFill" style="width: 15%;">
+            <span class="progress-flame-tip">🔥</span>
+          </div>
+          <span class="progress-counter-text" id="progressCounter">0 / 1</span>
+        </div>
+      </div>
+
+      <!-- Wood Planks Board with Handcrafted Matchsticks -->
+      <div class="wood-board-card">
+        <div class="wood-board-planks"></div>
+        <svg id="puzzleSvg" viewBox="0 0 400 240"></svg>
+      </div>
+
+      <!-- Objective Plaque -->
+      <div class="objective-plaque">
+        <div class="objective-main-text" id="objectiveTitle">MOVE 1 STICK</div>
+        <div class="objective-sub-text">SOLVE THE PUZZLE</div>
+      </div>
+
+      <!-- Bottom Bar: RESET & HINT -->
+      <div class="gameplay-bottom-bar">
+        <button class="reset-btn" id="btnReset">RESET</button>
+        <button class="hint-btn" id="btnHint">
+          <span>HINT</span>
+          <svg width="20" height="20" viewBox="0 0 20 20" style="transform: rotate(45deg);">
+            <rect x="8" y="4" width="4" height="12" rx="1.5" fill="#e5b66d" />
+            <ellipse cx="10" cy="4" rx="3.5" ry="4" fill="#e62e00" />
+            <ellipse cx="8.5" cy="3" rx="1.2" ry="1.5" fill="#fff" opacity="0.8" />
+          </svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- ==============================================================
+         3. LEVELS MODAL (Matching Screen 3 of Reference)
+    ============================================================== -->
+    <div class="modal-overlay" id="modalLevels">
+      <div class="modal-card">
+        <h2 class="modal-fire-title">LEVELS</h2>
+        <div class="levels-grid" id="levelsGrid"></div>
+        <button class="modal-bottom-btn" id="btnCloseLevels">← BACK</button>
+      </div>
+    </div>
+
+    <!-- ==============================================================
+         4. SETTINGS MODAL (Matching Screen 4 Top)
+    ============================================================== -->
+    <div class="modal-overlay" id="modalSettings">
+      <div class="modal-card">
+        <h2 class="modal-fire-title">SETTINGS</h2>
+        <div class="settings-list">
+          <div class="settings-row">
+            <span class="settings-label">SOUND EFFECTS</span>
+            <div class="match-toggle on" id="toggleSfx"><div class="toggle-shaft"></div><div class="toggle-head"></div></div>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">MUSIC</span>
+            <div class="match-toggle on" id="toggleMusic"><div class="toggle-shaft"></div><div class="toggle-head"></div></div>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">VIBRATION</span>
+            <div class="match-toggle on" id="toggleVibration"><div class="toggle-shaft"></div><div class="toggle-head"></div></div>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">NOTIFICATION</span>
+            <div class="match-toggle" id="toggleNotif"><div class="toggle-shaft"></div><div class="toggle-head"></div></div>
+          </div>
+        </div>
+        <button class="modal-bottom-btn" id="btnCloseSettings">← BACK</button>
+      </div>
+    </div>
+
+    <!-- ==============================================================
+         5. PAUSE MODAL (Matching Screen 4 Bottom)
+    ============================================================== -->
+    <div class="modal-overlay" id="modalPause">
+      <div class="modal-card">
+        <div class="pause-layout">
+          <!-- Left side icons -->
+          <div class="pause-side-icons">
+            <button class="pause-icon-btn" id="pauseBtnResume" title="Resume">▶</button>
+            <button class="pause-icon-btn" id="pauseBtnHome" title="Home">⌂</button>
+            <button class="pause-icon-btn" id="pauseBtnRestart" title="Restart">↺</button>
+            <button class="pause-icon-btn" id="pauseBtnLevels" title="Levels">≡</button>
+            <button class="pause-icon-btn" id="pauseBtnSettings" title="Settings">⚙</button>
+          </div>
+          <!-- Right Menu Box -->
+          <div class="pause-menu-card">
+            <div class="pause-menu-title">MENU</div>
+            <button class="menu-action-btn primary" id="pauseMenuResume">RESUME</button>
+            <button class="menu-action-btn secondary" id="pauseMenuRestart">↺ RESTART LEVEL</button>
+            <button class="menu-action-btn secondary" id="pauseMenuLevels">LEVEL SELECT</button>
+            <button class="menu-action-btn secondary" id="pauseMenuSettings">SETTINGS</button>
+            <button class="menu-action-btn secondary" id="pauseMenuHome">MAIN MENU</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==============================================================
+         6. HOW TO PLAY MODAL
+    ============================================================== -->
+    <div class="modal-overlay" id="modalHowToPlay">
+      <div class="modal-card">
+        <h2 class="modal-fire-title">HOW TO PLAY</h2>
+        <p style="color: #ffd454; font-size: 16px; text-align: center; line-height: 1.5; margin: 8px 0 16px;">
+          • Tap a matchstick to pick it up.<br>
+          • Tap an empty glowing slot to place it.<br>
+          • Form a true mathematical equation to ignite the fire!
+        </p>
+        <button class="modal-bottom-btn" id="btnCloseHowToPlay">GOT IT</button>
+      </div>
+    </div>
+
+    <!-- ==============================================================
+         7. WIN MODAL (Burning completion)
+    ============================================================== -->
+    <div class="modal-overlay" id="modalWin">
+      <div class="modal-card">
+        <h2 class="modal-fire-title">LEVEL SOLVED!</h2>
+        <div style="font-size: 38px; color: #ffc83b; margin: 6px 0 14px; letter-spacing: 6px;" id="winStars">★★★</div>
+        <p style="color: #ffd454; font-size: 18px; margin-bottom: 16px;" id="winTime">SOLVED IN 12s</p>
+        <button class="pill-btn" id="btnNextLevel" style="width: 200px; height: 52px;">
+          <span class="pill-btn-text">NEXT LEVEL</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Reusable SVG Gradients Definition -->
+    <svg style="position: absolute; width: 0; height: 0;" aria-hidden="true">
+      <defs>
+        <linearGradient id="heroWoodGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#edd19d"/>
+          <stop offset="35%" stop-color="#d69b56"/>
+          <stop offset="85%" stop-color="#99602c"/>
+          <stop offset="100%" stop-color="#6e3d15"/>
+        </linearGradient>
+        <linearGradient id="heroCharGrad" x1="0" y1="1" x2="0" y2="0">
+          <stop offset="0%" stop-color="#d69b56" stop-opacity="0"/>
+          <stop offset="70%" stop-color="#2a1208"/>
+          <stop offset="100%" stop-color="#140602"/>
+        </linearGradient>
+        <radialGradient id="heroHeadGrad" cx="35%" cy="30%" r="65%">
+          <stop offset="0%" stop-color="#ff6633"/>
+          <stop offset="50%" stop-color="#e62200"/>
+          <stop offset="85%" stop-color="#990f00"/>
+          <stop offset="100%" stop-color="#4d0500"/>
+        </radialGradient>
+      </defs>
+    </svg>
+  </div>
+
+  <!-- Procedural Web Audio Engine + Game Logic Script -->
+  <script>
+    // 1. Unregister any old Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(regs => {
+        for (let reg of regs) reg.unregister();
+      });
+    }
+
+    // 2. Procedural Web Audio Engine
+    const AudioEngine = {
+      ctx: null,
+      sfx: true,
+      music: true,
+      init() {
+        if (this.ctx) return;
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (AC) this.ctx = new AC();
+      },
+      unlock() {
+        this.init();
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      },
+      playClick() {
+        if (!this.sfx) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(800, now);
+        osc.frequency.exponentialRampToValueAtTime(300, now + 0.05);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.05);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.05);
+      },
+      playWoodTick() {
+        if (!this.sfx) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(420, now);
+        osc.frequency.exponentialRampToValueAtTime(140, now + 0.04);
+        gain.gain.setValueAtTime(0.4, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.04);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.04);
+      },
+      playStrike() {
+        if (!this.sfx) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(950, now);
+        osc.frequency.exponentialRampToValueAtTime(250, now + 0.18);
+        gain.gain.setValueAtTime(0.35, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.18);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.18);
+      },
+      playCrackle() {
+        if (!this.sfx) return;
+        this.init();
+        if (!this.ctx) return;
+        for (let i = 0; i < 4; i++) {
+          setTimeout(() => {
+            if (!this.ctx) return;
+            const now = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(2000 + Math.random() * 2000, now);
+            gain.gain.setValueAtTime(0.15, now);
+            gain.gain.linearRampToValueAtTime(0.01, now + 0.03);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.03);
+          }, i * 65);
+        }
+      }
+    };
+
+    // 3. Ambient Embers Canvas Animation
+    (function initAmbient() {
+      const cvs = document.getElementById('ambientCanvas');
+      const ctx = cvs.getContext('2d');
+      function resize() {
+        cvs.width = window.innerWidth;
+        cvs.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resize);
+      resize();
+
+      const embers = Array.from({ length: 40 }, () => ({
+        x: Math.random() * cvs.width,
+        y: Math.random() * cvs.height,
+        r: 1 + Math.random() * 2.2,
+        vy: 0.4 + Math.random() * 0.7,
+        vx: (Math.random() - 0.5) * 0.4,
+        alpha: 0.2 + Math.random() * 0.6,
+        color: Math.random() > 0.4 ? '#ff7700' : '#ffc83b'
+      }));
+
+      function step() {
+        ctx.clearRect(0, 0, cvs.width, cvs.height);
+        embers.forEach(e => {
+          e.y -= e.vy;
+          e.x += e.vx;
+          if (e.y < -10) {
+            e.y = cvs.height + 10;
+            e.x = Math.random() * cvs.width;
+          }
+          ctx.beginPath();
+          ctx.arc(e.x, e.y, e.r, 0, Math.PI * 2);
+          ctx.fillStyle = e.color;
+          ctx.globalAlpha = e.alpha;
+          ctx.shadowBlur = 6;
+          ctx.shadowColor = e.color;
+          ctx.fill();
+        });
+        ctx.globalAlpha = 1;
+        ctx.shadowBlur = 0;
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    })();
+
+    // 4. Live Multi-Layer Animated Fire Flame on Matchstick Head
+    (function initHeroFire() {
+      const cvs = document.getElementById('fireCanvas');
+      const ctx = cvs.getContext('2d');
+      cvs.width = 160;
+      cvs.height = 180;
+      let t = 0;
+
+      function renderFlame() {
+        t += 0.05;
+        ctx.clearRect(0, 0, 160, 180);
+        const cx = 80;
+        const cy = 110;
+
+        // Radial halo glow
+        const haloGrad = ctx.createRadialGradient(cx, cy - 20, 10, cx, cy - 20, 65);
+        haloGrad.addColorStop(0, 'rgba(255, 170, 0, 0.45)');
+        haloGrad.addColorStop(0.5, 'rgba(230, 60, 0, 0.2)');
+        haloGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = haloGrad;
+        ctx.beginPath();
+        ctx.arc(cx, cy - 20, 65, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Sway & lick math
+        const sway = Math.sin(t * 1.8) * 5;
+        const lick = Math.sin(t * 4.2) * 8;
+
+        // Outer Flame (Red-Orange)
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.beginPath();
+        ctx.moveTo(-22, 10);
+        ctx.bezierCurveTo(-26, -30, -14 + sway, -60 + lick, 0 + sway, -85 + lick);
+        ctx.bezierCurveTo(14 + sway, -60 + lick, 26, -30, 22, 10);
+        ctx.closePath();
+        const outerGrad = ctx.createLinearGradient(0, 10, 0, -85);
+        outerGrad.addColorStop(0, '#c72800');
+        outerGrad.addColorStop(0.4, '#ff5500');
+        outerGrad.addColorStop(0.8, '#ff9900');
+        outerGrad.addColorStop(1, '#ffc83b');
+        ctx.fillStyle = outerGrad;
+        ctx.shadowColor = '#ff6600';
+        ctx.shadowBlur = 14;
+        ctx.fill();
+        ctx.restore();
+
+        // Mid Flame (Golden Amber)
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.beginPath();
+        ctx.moveTo(-14, 8);
+        ctx.bezierCurveTo(-18, -20, -10 - sway, -45, 0 - sway, -65);
+        ctx.bezierCurveTo(10 - sway, -45, 18, -20, 14, 8);
+        ctx.closePath();
+        const midGrad = ctx.createLinearGradient(0, 8, 0, -65);
+        midGrad.addColorStop(0, '#ff7700');
+        midGrad.addColorStop(0.6, '#ffcc00');
+        midGrad.addColorStop(1, '#fff599');
+        ctx.fillStyle = midGrad;
+        ctx.fill();
+        ctx.restore();
+
+        // Inner Incandescent Core (White Hot)
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.beginPath();
+        ctx.moveTo(-7, 6);
+        ctx.bezierCurveTo(-9, -10, -5, -28, 0, -40);
+        ctx.bezierCurveTo(5, -28, 9, -10, 7, 6);
+        ctx.closePath();
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = '#ffffff';
+        ctx.shadowBlur = 8;
+        ctx.fill();
+        ctx.restore();
+
+        requestAnimationFrame(renderFlame);
+      }
+      requestAnimationFrame(renderFlame);
+    })();
+
+    // 5. Game State & Logic
+    const DIGIT_PATTERNS = {
+      '0': ['a', 'b', 'c', 'd', 'e', 'f'],
+      '1': ['b', 'c'],
+      '2': ['a', 'b', 'g', 'e', 'd'],
+      '3': ['a', 'b', 'g', 'c', 'd'],
+      '4': ['f', 'g', 'b', 'c'],
+      '5': ['a', 'f', 'g', 'c', 'd'],
+      '6': ['a', 'f', 'g', 'e', 'c', 'd'],
+      '7': ['a', 'b', 'c'],
+      '8': ['a', 'b', 'c', 'd', 'e', 'f', 'g'],
+      '9': ['a', 'b', 'c', 'd', 'f', 'g']
+    };
+
+    const LEVELS = [
+      { id: 1, eq: '6+4=4', mode: 'move-1', sol: { from: [0, 'g'], to: [0, 'b'] } }, // 0+4=4
+      { id: 2, eq: '8-4=0', mode: 'move-1', sol: { from: [0, 'e'], to: [2, 'g'] } },
+      { id: 3, eq: '5+7=2', mode: 'move-1', sol: { from: [1, 'a'], to: [0, 'e'] } },
+      { id: 4, eq: '9-3=9', mode: 'move-1', sol: { from: [2, 'a'], to: [1, 'f'] } },
+      { id: 5, eq: '3+5=2', mode: 'move-1', sol: { from: [1, 'a'], to: [0, 'f'] } },
+      { id: 6, eq: '8+3=4', mode: 'move-1', sol: { from: [0, 'e'], to: [1, 'f'] } },
+      { id: 7, eq: '9+5=8', mode: 'move-1', sol: { from: [0, 'b'], to: [1, 'e'] } },
+      { id: 8, eq: '6-4=7', mode: 'move-1', sol: { from: [0, 'f'], to: [2, 'f'] } },
+      { id: 9, eq: '4+9=2', mode: 'move-1', sol: { from: [1, 'a'], to: [0, 'a'] } },
+      { id: 10, eq: '8-3=9', mode: 'move-1', sol: { from: [0, 'c'], to: [1, 'e'] } },
+      { id: 11, eq: '5+2=3', mode: 'move-1', sol: { from: [1, 'e'], to: [0, 'e'] } },
+      { id: 12, eq: '7-1=8', mode: 'move-1', sol: { from: [0, 'a'], to: [2, 'g'] } },
+      { id: 13, eq: '6+4=4', mode: 'move-1', sol: { from: [0, 'g'], to: [0, 'b'] } },
+      { id: 14, eq: '9-5=8', mode: 'move-1', sol: { from: [0, 'a'], to: [1, 'e'] } },
+      { id: 15, eq: '3+8=2', mode: 'move-1', sol: { from: [1, 'e'], to: [0, 'e'] } }
+    ];
+
+    let currentLevel = 1;
+    let unlockedLevel = 1;
+    let movesTaken = 0;
+    let pickedSlot = null; // [tokenIdx, slotKey]
+    let curState = null;
+    let puzzleState = null;
+    let moveHistory = [];
+    let isLocked = false;
+    let startTime = Date.now();
+
+    // 6. Navigation between Screens & Modals
+    const screenHome = document.getElementById('screenHome');
+    const screenGameplay = document.getElementById('screenGameplay');
+    const modalLevels = document.getElementById('modalLevels');
+    const modalSettings = document.getElementById('modalSettings');
+    const modalPause = document.getElementById('modalPause');
+    const modalHowToPlay = document.getElementById('modalHowToPlay');
+    const modalWin = document.getElementById('modalWin');
+
+    function showScreen(screen) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      screen.classList.add('active');
+    }
+
+    function openModal(modal) {
+      AudioEngine.unlock();
+      AudioEngine.playClick();
+      modal.classList.add('open');
+    }
+    function closeModal(modal) {
+      AudioEngine.playClick();
+      modal.classList.remove('open');
+    }
+
+    // Button interactions on Home Screen
+    document.getElementById('btnPlay').onclick = () => {
+      AudioEngine.unlock();
+      AudioEngine.playClick();
+      loadLevel(unlockedLevel);
+      showScreen(screenGameplay);
+    };
+
+    document.getElementById('btnLevels').onclick = () => {
+      openModal(modalLevels);
+      renderLevelsGrid();
+    };
+
+    document.getElementById('btnHowToPlay').onclick = () => {
+      openModal(modalHowToPlay);
+    };
+    document.getElementById('btnCloseHowToPlay').onclick = () => {
+      closeModal(modalHowToPlay);
+    };
+
+    document.getElementById('btnOpenSettings').onclick = () => {
+      openModal(modalSettings);
+    };
+    document.getElementById('btnCloseSettings').onclick = () => {
+      closeModal(modalSettings);
+    };
+
+    // Button interactions on Gameplay Screen
+    document.getElementById('btnPause').onclick = () => {
+      openModal(modalPause);
+    };
+    document.getElementById('pauseMenuResume').onclick = () => closeModal(modalPause);
+    document.getElementById('pauseBtnResume').onclick = () => closeModal(modalPause);
+
+    document.getElementById('pauseMenuRestart').onclick = () => {
+      closeModal(modalPause);
+      loadLevel(currentLevel);
+    };
+    document.getElementById('pauseBtnRestart').onclick = () => {
+      closeModal(modalPause);
+      loadLevel(currentLevel);
+    };
+
+    document.getElementById('pauseMenuLevels').onclick = () => {
+      closeModal(modalPause);
+      openModal(modalLevels);
+      renderLevelsGrid();
+    };
+    document.getElementById('pauseBtnLevels').onclick = () => {
+      closeModal(modalPause);
+      openModal(modalLevels);
+      renderLevelsGrid();
+    };
+
+    document.getElementById('pauseMenuSettings').onclick = () => {
+      closeModal(modalPause);
+      openModal(modalSettings);
+    };
+    document.getElementById('pauseBtnSettings').onclick = () => {
+      closeModal(modalPause);
+      openModal(modalSettings);
+    };
+
+    document.getElementById('pauseMenuHome').onclick = () => {
+      closeModal(modalPause);
+      showScreen(screenHome);
+    };
+    document.getElementById('pauseBtnHome').onclick = () => {
+      closeModal(modalPause);
+      showScreen(screenHome);
+    };
+
+    document.getElementById('btnCloseLevels').onclick = () => {
+      closeModal(modalLevels);
+    };
+
+    document.getElementById('btnReset').onclick = () => {
+      if (isLocked) return;
+      AudioEngine.playClick();
+      curState = JSON.parse(JSON.stringify(puzzleState));
+      movesTaken = 0;
+      pickedSlot = null;
+      moveHistory = [];
+      updateBoard();
+    };
+
+    document.getElementById('btnUndo').onclick = () => {
+      if (isLocked || moveHistory.length === 0) return;
+      AudioEngine.playClick();
+      curState = moveHistory.pop();
+      movesTaken = Math.max(0, movesTaken - 1);
+      pickedSlot = null;
+      updateBoard();
+    };
+
+    document.getElementById('btnHint').onclick = () => {
+      AudioEngine.playClick();
+      const lvl = LEVELS[currentLevel - 1] || LEVELS[0];
+      if (lvl.sol) {
+        pickedSlot = lvl.sol.from;
+        updateBoard();
+      }
+    };
+
+    document.getElementById('btnNextLevel').onclick = () => {
+      closeModal(modalWin);
+      loadLevel(currentLevel + 1);
+    };
+
+    // Toggle buttons in Settings
+    document.querySelectorAll('.match-toggle').forEach(t => {
+      t.onclick = () => {
+        AudioEngine.playWoodTick();
+        t.classList.toggle('on');
+      };
+    });
+
+    // 7. Load Level & SVG Puzzle Renderer
+    function loadLevel(lvlNum) {
+      currentLevel = lvlNum;
+      document.getElementById('hudLevelText').textContent = 'LEVEL ' + currentLevel;
+      const lvl = LEVELS[currentLevel - 1] || { eq: '6+4=4', mode: 'move-1' };
+
+      // Parse equation into tokens
+      puzzleState = parseEquation(lvl.eq);
+      curState = JSON.parse(JSON.stringify(puzzleState));
+      movesTaken = 0;
+      pickedSlot = null;
+      moveHistory = [];
+      isLocked = false;
+      startTime = Date.now();
+
+      updateBoard();
+    }
+
+    function parseEquation(eqStr) {
+      // Return structured array: [{ type: 'digit', val: '6' }, { type: 'op', val: '+' }, ...]
+      const tokens = [];
+      for (let ch of eqStr) {
+        if (ch >= '0' && ch <= '9') {
+          tokens.push({ type: 'digit', char: ch, slots: { ...DIGIT_PATTERNS[ch] } });
+        } else if (ch === '+' || ch === '-') {
+          tokens.push({ type: 'op', char: ch, slots: ch === '+' ? { h: true, v: true } : { h: true } });
+        } else if (ch === '=') {
+          tokens.push({ type: 'eq', char: '=', slots: { top: true, bot: true } });
+        }
+      }
+      return tokens;
+    }
+
+    // Coordinates for 7-segment slots (box: 52px wide, 90px high)
+    const DIGIT_SLOTS = {
+      a: { x: 8, y: 4, w: 36, h: 8, rot: 0 },
+      b: { x: 38, y: 10, w: 8, h: 36, rot: 0 },
+      c: { x: 38, y: 48, w: 8, h: 36, rot: 0 },
+      d: { x: 8, y: 80, w: 36, h: 8, rot: 0 },
+      e: { x: 4, y: 48, w: 8, h: 36, rot: 0 },
+      f: { x: 4, y: 10, w: 8, h: 36, rot: 0 },
+      g: { x: 8, y: 44, w: 36, h: 8, rot: 0 }
+    };
+
+    function updateBoard() {
+      const svg = document.getElementById('puzzleSvg');
+      svg.innerHTML = '';
+
+      // Total equation width ~ 380px, layout tokens horizontally
+      const tokenWidths = curState.map(t => t.type === 'digit' ? 56 : (t.type === 'eq' ? 42 : 36));
+      const totalW = tokenWidths.reduce((a, b) => a + b, 0) + (curState.length - 1) * 16;
+      let startX = (400 - totalW) / 2;
+      const centerY = (240 - 92) / 2;
+
+      curState.forEach((tok, tIdx) => {
+        const xOffset = startX;
+        startX += (tok.type === 'digit' ? 56 : (tok.type === 'eq' ? 42 : 36)) + 16;
+
+        if (tok.type === 'digit') {
+          // Render 7 segments: 'a' through 'g'
+          ['a', 'b', 'c', 'd', 'e', 'f', 'g'].forEach(slotKey => {
+            const hasStick = !!(tok.slots && (Array.isArray(tok.slots) ? tok.slots.includes(slotKey) : tok.slots[slotKey]));
+            const isPicked = pickedSlot && pickedSlot[0] === tIdx && pickedSlot[1] === slotKey;
+            const geom = DIGIT_SLOTS[slotKey];
+
+            renderMatchStick(svg, xOffset + geom.x, centerY + geom.y, geom.w, geom.h, hasStick, isPicked, () => {
+              handleSlotClick(tIdx, slotKey, hasStick);
+            });
+          });
+        } else if (tok.type === 'op') {
+          // Render horizontal stick for '-' or both for '+'
+          renderMatchStick(svg, xOffset + 4, centerY + 44, 28, 8, true, false, () => {});
+          if (tok.char === '+') {
+            renderMatchStick(svg, xOffset + 14, centerY + 34, 8, 28, true, false, () => {});
+          }
+        } else if (tok.type === 'eq') {
+          // Render top and bottom horizontal sticks for '='
+          renderMatchStick(svg, xOffset + 4, centerY + 36, 32, 7, true, false, () => {});
+          renderMatchStick(svg, xOffset + 4, centerY + 52, 32, 7, true, false, () => {});
+        }
+      });
+
+      // Update progress bar
+      const allowed = 1;
+      const pct = Math.min(100, Math.max(12, (movesTaken / allowed) * 100));
+      document.getElementById('progressFill').style.width = pct + '%';
+      document.getElementById('progressCounter').textContent = movesTaken + ' / ' + allowed;
+    }
+
+    function renderMatchStick(svg, x, y, w, h, filled, picked, onClick) {
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.style.cursor = 'pointer';
+
+      // Transparent hit area for reliable touch targets
+      const hit = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      hit.setAttribute('x', x - 6);
+      hit.setAttribute('y', y - 6);
+      hit.setAttribute('width', w + 12);
+      hit.setAttribute('height', h + 12);
+      hit.setAttribute('fill', 'transparent');
+      g.appendChild(hit);
+
+      if (filled) {
+        // Shadow
+        const sh = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        sh.setAttribute('x', x + 2);
+        sh.setAttribute('y', y + 3);
+        sh.setAttribute('width', w);
+        sh.setAttribute('height', h);
+        sh.setAttribute('rx', 3);
+        sh.setAttribute('fill', '#000');
+        sh.setAttribute('opacity', '0.6');
+        g.appendChild(sh);
+
+        // Realistic Pine Shaft
+        const body = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        body.setAttribute('x', x);
+        body.setAttribute('y', y);
+        body.setAttribute('width', w);
+        body.setAttribute('height', h);
+        body.setAttribute('rx', 3);
+        body.setAttribute('fill', picked ? '#ffe082' : 'url(#heroWoodGrad)');
+        if (picked) {
+          body.setAttribute('stroke', '#ffea00');
+          body.setAttribute('stroke-width', '2');
+        }
+        g.appendChild(body);
+
+        // Sulfur Head
+        const head = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+        if (w > h) {
+          // Horizontal stick: head on right
+          head.setAttribute('cx', x + w - 3);
+          head.setAttribute('cy', y + h / 2);
+          head.setAttribute('rx', 5);
+          head.setAttribute('ry', 4.5);
+        } else {
+          // Vertical stick: head on top
+          head.setAttribute('cx', x + w / 2);
+          head.setAttribute('cy', y + 3);
+          head.setAttribute('rx', 4.5);
+          head.setAttribute('ry', 5);
+        }
+        head.setAttribute('fill', 'url(#heroHeadGrad)');
+        g.appendChild(head);
+      } else {
+        // Empty slot outline (glowing dashed slot if a stick is currently picked)
+        if (pickedSlot) {
+          const slot = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          slot.setAttribute('x', x);
+          slot.setAttribute('y', y);
+          slot.setAttribute('width', w);
+          slot.setAttribute('height', h);
+          slot.setAttribute('rx', 3);
+          slot.setAttribute('fill', 'rgba(255, 140, 0, 0.12)');
+          slot.setAttribute('stroke', '#ff9400');
+          slot.setAttribute('stroke-width', '1.8');
+          slot.setAttribute('stroke-dasharray', '4 3');
+          g.appendChild(slot);
+        }
+      }
+
+      g.onclick = onClick;
+      svg.appendChild(g);
+    }
+
+    function handleSlotClick(tokenIdx, slotKey, hasStick) {
+      if (isLocked) return;
+
+      if (!pickedSlot) {
+        if (hasStick) {
+          AudioEngine.playWoodTick();
+          pickedSlot = [tokenIdx, slotKey];
+          updateBoard();
+        }
+      } else {
+        if (pickedSlot[0] === tokenIdx && pickedSlot[1] === slotKey) {
+          // Unpick
+          AudioEngine.playWoodTick();
+          pickedSlot = null;
+          updateBoard();
+        } else if (!hasStick) {
+          // Move from pickedSlot to this empty slot!
+          AudioEngine.playWoodTick();
+          moveHistory.push(JSON.parse(JSON.stringify(curState)));
+
+          // Remove from old slot
+          const [fromTok, fromSlot] = pickedSlot;
+          if (Array.isArray(curState[fromTok].slots)) {
+            curState[fromTok].slots = curState[fromTok].slots.filter(s => s !== fromSlot);
+          } else {
+            delete curState[fromTok].slots[fromSlot];
+          }
+
+          // Add to new slot
+          if (Array.isArray(curState[tokenIdx].slots)) {
+            curState[tokenIdx].slots.push(slotKey);
+          } else {
+            curState[tokenIdx].slots[slotKey] = true;
+          }
+
+          movesTaken++;
+          pickedSlot = null;
+          updateBoard();
+
+          // Evaluate equation
+          checkEquationWin();
+        }
+      }
+    }
+
+    function checkEquationWin() {
+      // Evaluate if equation is mathematically valid
+      // Digits evaluation: reconstruct numbers
+      const d1 = getDigitChar(curState[0].slots);
+      const op = curState[1].char;
+      const d2 = getDigitChar(curState[2].slots);
+      const eq = curState[3].char;
+      const d3 = getDigitChar(curState[4].slots);
+
+      if (d1 !== null && d2 !== null && d3 !== null) {
+        const n1 = parseInt(d1, 10);
+        const n2 = parseInt(d2, 10);
+        const n3 = parseInt(d3, 10);
+
+        let correct = false;
+        if (op === '+' && n1 + n2 === n3) correct = true;
+        if (op === '-' && n1 - n2 === n3) correct = true;
+
+        if (correct) {
+          triggerWinSequence();
+        }
+      }
+    }
+
+    function getDigitChar(slots) {
+      const active = Array.isArray(slots) ? slots.slice().sort() : Object.keys(slots).sort();
+      for (let digit in DIGIT_PATTERNS) {
+        const pat = DIGIT_PATTERNS[digit].slice().sort();
+        if (pat.length === active.length && pat.every((v, i) => v === active[i])) {
+          return digit;
+        }
+      }
+      return null;
+    }
+
+    function triggerWinSequence() {
+      isLocked = true;
+      AudioEngine.playStrike();
+      AudioEngine.playCrackle();
+
+      unlockedLevel = Math.max(unlockedLevel, currentLevel + 1);
+      const elapsedSec = Math.max(1, Math.round((Date.now() - startTime) / 1000));
+
+      setTimeout(() => {
+        document.getElementById('winStars').textContent = '★★★';
+        document.getElementById('winTime').textContent = 'SOLVED IN ' + elapsedSec + 's';
+        openModal(modalWin);
+      }, 1200);
+    }
+
+    // 8. Render Levels Screen Badges (Screen 3)
+    function renderLevelsGrid() {
+      const grid = document.getElementById('levelsGrid');
+      grid.innerHTML = '';
+
+      for (let i = 1; i <= 20; i++) {
+        const badge = document.createElement('div');
+        const isCurrent = (i === currentLevel);
+        const isLocked = (i > unlockedLevel);
+
+        badge.className = 'level-badge ' + (isCurrent ? 'current' : (isLocked ? 'locked' : 'unlocked'));
+        badge.innerHTML = `
+          <div class="badge-circle">${isLocked ? '🔒' : i}</div>
+          <div class="badge-stars">${isLocked ? '' : (isCurrent ? '★★★' : '★★★')}</div>
+        `;
+
+        if (!isLocked) {
+          badge.onclick = () => {
+            closeModal(modalLevels);
+            loadLevel(i);
+            showScreen(screenGameplay);
+          };
+        }
+        grid.appendChild(badge);
+      }
+    }
+  </script>
+</body>
+</html>

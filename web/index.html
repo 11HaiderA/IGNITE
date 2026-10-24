@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Match Sticks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Match<span>Sticks</span></h1>
+    <div class="stats">
+      <div class="stat"><small>Level</small><b id="level">1</b></div>
+      <div class="stat"><small>Score</small><b id="score">0</b></div>
+      <div class="stat"><small>Streak</small><b id="streak">0</b></div>
+      <div class="stat"><small>Time</small><b id="time">0:00</b></div>
+    </div>
+  </header>
+
+  <main>
+    <p class="task">Move <b>one</b> matchstick to make the equation true</p>
+    <div class="board" id="boardWrap"><svg id="board"></svg></div>
+    <p class="msg" id="msg">Tap a stick to pick it up, then tap an empty slot.</p>
+    <div class="controls">
+      <button id="btnReset" title="R">↺ Reset</button>
+      <button id="btnHint" title="H">💡 Hint</button>
+      <button id="btnSkip" title="N">⏭ Skip</button>
+    </div>
+  </main>
+
+  <footer>Best: <b id="best">0</b> · Keys: Esc cancel · R reset · H hint · N skip</footer>
+</div>
+
+<div class="overlay hidden" id="overlay">
+  <div class="card">
+    <h2>Solved!</h2>
+    <div class="stars" id="stars"></div>
+    <p id="winInfo"></p>
+    <button id="btnNext" class="primary">Next level →</button>
+  </div>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>

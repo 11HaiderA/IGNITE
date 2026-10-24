@@ -1,0 +1,352 @@
+[
+  {
+    "id": 1,
+    "equation": "6+4=4",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 1
+  },
+  {
+    "id": 2,
+    "equation": "5+7=2",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 1
+  },
+  {
+    "id": 3,
+    "equation": "9+3=6",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 1
+  },
+  {
+    "id": 4,
+    "equation": "8-3=9",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 1
+  },
+  {
+    "id": 5,
+    "equation": "0+3=9",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 1
+  },
+  {
+    "id": 6,
+    "equation": "5-9=4",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 1
+  },
+  {
+    "id": 7,
+    "equation": "5+5=8",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 1
+  },
+  {
+    "id": 8,
+    "equation": "9-5=6",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 1
+  },
+  {
+    "id": 9,
+    "equation": "6+9=9",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 1
+  },
+  {
+    "id": 10,
+    "equation": "5+0=3",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 1
+  },
+  {
+    "id": 11,
+    "equation": "15-2=12",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 1
+  },
+  {
+    "id": 12,
+    "equation": "6+10=10",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 1
+  },
+  {
+    "id": 13,
+    "equation": "9-3=3",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 1
+  },
+  {
+    "id": 14,
+    "equation": "10-6=15",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 1
+  },
+  {
+    "id": 15,
+    "equation": "8-7=16",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 1
+  },
+  {
+    "id": 16,
+    "equation": "9+6=6",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 1
+  },
+  {
+    "id": 17,
+    "equation": "9+7=7",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 2
+  },
+  {
+    "id": 18,
+    "equation": "8-8=18",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 1
+  },
+  {
+    "id": 19,
+    "equation": "5+1=5",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 1
+  },
+  {
+    "id": 20,
+    "equation": "8-1=1",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 1
+  },
+  {
+    "id": 21,
+    "equation": "5-6=9",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 1
+  },
+  {
+    "id": 22,
+    "equation": "12-7=3",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 1
+  },
+  {
+    "id": 23,
+    "equation": "5+9=11",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 1
+  },
+  {
+    "id": 24,
+    "equation": "1+9=16",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 1
+  },
+  {
+    "id": 25,
+    "equation": "0+3=17",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 1
+  },
+  {
+    "id": 26,
+    "equation": "0+6=12",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 1
+  },
+  {
+    "id": 27,
+    "equation": "11+1=13",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 1
+  },
+  {
+    "id": 28,
+    "equation": "6+3=17",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 1
+  },
+  {
+    "id": 29,
+    "equation": "14-9=17",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 1
+  },
+  {
+    "id": 30,
+    "equation": "8+4=13",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 1
+  },
+  {
+    "id": 31,
+    "equation": "5-9=5",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 2
+  },
+  {
+    "id": 32,
+    "equation": "7-10=11",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 2
+  },
+  {
+    "id": 33,
+    "equation": "6+5=9",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 2
+  },
+  {
+    "id": 34,
+    "equation": "0+10=16",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 2
+  },
+  {
+    "id": 35,
+    "equation": "3-0=2",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 2
+  },
+  {
+    "id": 36,
+    "equation": "0+8=14",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 2
+  },
+  {
+    "id": 37,
+    "equation": "6+8=0",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 2
+  },
+  {
+    "id": 38,
+    "equation": "11+3=6",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 2
+  },
+  {
+    "id": 39,
+    "equation": "8-8=6",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 2
+  },
+  {
+    "id": 40,
+    "equation": "11-6=3",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 2
+  },
+  {
+    "id": 41,
+    "equation": "2+9=1",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 2
+  },
+  {
+    "id": 42,
+    "equation": "4-11=16",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 2
+  },
+  {
+    "id": 43,
+    "equation": "8-1=9",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 2
+  },
+  {
+    "id": 44,
+    "equation": "1-1=9",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 2
+  },
+  {
+    "id": 45,
+    "equation": "13-0=12",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 2
+  },
+  {
+    "id": 46,
+    "equation": "12+5=6",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 2
+  },
+  {
+    "id": 47,
+    "equation": "15-2=11",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 2
+  },
+  {
+    "id": 48,
+    "equation": "2-9=17",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 2
+  },
+  {
+    "id": 49,
+    "equation": "1+7=0",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 2
+  },
+  {
+    "id": 50,
+    "equation": "8-3=3",
+    "mode": "move-1",
+    "movesAllowed": 1,
+    "difficulty": 2
+  }
+]

@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark"><link rel="icon" href="data:,">
+<title>Matchsticks — UI Redesign</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FFF7EC;--surface:#FFFFFF;--ink:#221610;--muted:#7A6759;--line:#F0DCC8;--ember:#FF6B0A;--ember2:#FF9E1B;--yellow:#FFC21A;--dark:#1B130E;--dark2:#2A1E16;--cream:#FFF6E8;--cream2:#FFE8C2;--success:#22C55E;--radius:20px;--shadow:0 12px 30px rgba(90,40,0,.12)}
+@media(prefers-color-scheme:dark){:root{--bg:#14100D;--surface:#211913;--ink:#FFF6E8;--muted:#C9B3A0;--line:#3A2A1F;--shadow:0 12px 30px rgba(0,0,0,.4)}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Nunito,system-ui,sans-serif}
+a{color:inherit}button{font-family:inherit;cursor:pointer}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 18px 56px}
+.top{display:flex;justify-content:space-between;gap:20px;align-items:flex-end;flex-wrap:wrap}
+h1{font-family:"Baloo 2",cursive;font-size:clamp(34px,5vw,56px);line-height:.95;margin:0;letter-spacing:-.02em}h1 span{color:var(--ember)}
+.lede{color:var(--muted);font-weight:700;max-width:640px;line-height:1.6;margin:12px 0 0}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.badge{background:var(--surface);border:1px solid var(--line);padding:8px 12px;border-radius:999px;font-weight:900;font-size:13px}
+.btn{border:0;border-radius:999px;padding:12px 18px;font-weight:900;background:var(--ink);color:var(--bg)}
+/* PHONES */
+.phones{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:28px}
+@media(max-width:1020px){.phones{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.phones{grid-template-columns:1fr}.phone{margin:0 auto;width:100%;max-width:340px}}
+.phone-label{display:flex;justify-content:space-between;align-items:center;margin:0 4px 8px;font-weight:900;font-size:13px;letter-spacing:.06em;text-transform:uppercase}.phone-label span{color:var(--ember);background:#FFEEDD;border:1px solid #FFD9AE;padding:3px 8px;border-radius:999px;font-size:11px}
+.phone{background:#120D0A;border:3px solid #FF8A1E;border-radius:36px;overflow:hidden;aspect-ratio:9/20.6;display:flex;flex-direction:column;position:relative;box-shadow:0 18px 36px rgba(60,25,0,.28);color:var(--cream)}
+.phone:before{content:"";position:absolute;inset:0;background:radial-gradient(320px 180px at 50% -40px,rgba(255,122,18,.45),transparent 65%),radial-gradient(200px 120px at 50% 108%,rgba(255,80,0,.35),transparent 70%);pointer-events:none}
+.screen{position:relative;padding:18px 16px 16px;display:flex;flex-direction:column;height:100%}
+.logo-flame{font-size:54px;text-align:center;line-height:1;filter:drop-shadow(0 0 18px rgba(255,140,0,.8))}
+.game-title{font-family:"Baloo 2";font-size:44px;line-height:.85;text-align:center;margin:6px 0 18px;font-weight:800;background:linear-gradient(#FFE45C,#FF7A00);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none}
+.game-title small{display:block;font-size:40px}
+.gbtn{position:relative;border:2px solid #7A2E00;border-radius:999px;padding:13px 14px;margin:6px 4px;font-family:"Baloo 2";font-size:20px;font-weight:800;letter-spacing:.04em;color:#2B1400;background:linear-gradient(180deg,#FFD34D,#FF8A00);box-shadow:0 5px 0 #8A3A00,0 10px 18px rgba(0,0,0,.35);transition:.15s}
+.gbtn:hover{transform:translateY(-1px);filter:brightness(1.06)} .gbtn:active{transform:translateY(4px);box-shadow:0 1px 0 #8A3A00}
+.gbtn.dark{background:linear-gradient(180deg,#4A2E1E,#24150E);color:#FFE8C2;border-color:#0A0603;box-shadow:0 5px 0 #0A0603}
+.gbtn.small{font-size:16px;padding:10px}
+.hintline{text-align:center;color:#D8C2AE;font-size:12px;font-weight:800;margin-top:auto}
+.level-pill{align-self:center;background:linear-gradient(#FF9E1B,#FF6B0A);color:#fff;font-family:"Baloo 2";font-weight:800;padding:7px 18px;border-radius:0 0 14px 14px;margin-top:-18px;box-shadow:0 4px 0 #8A3A00;letter-spacing:.06em}
+.toprow{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+.icon-btn{width:38px;height:38px;border-radius:50%;border:2px solid #7A2E00;background:linear-gradient(#FFC21A,#FF7A00);display:grid;place-items:center;font-weight:900;color:#2B1400}
+.progress{margin:14px 2px 6px;background:#0D0906;border:1px solid #5A3418;border-radius:999px;height:22px;position:relative;overflow:hidden}
+.progress i{position:absolute;inset:3px auto 3px 3px;width:8%;background:linear-gradient(90deg,#FF6B0A,#FFC21A);border-radius:999px;transition:.4s}
+.progress b{position:absolute;right:10px;top:2px;font-size:12px}
+.board{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:8px;margin-top:10px}
+.match{cursor:pointer;transition:.2s}.match:hover{filter:brightness(1.25) drop-shadow(0 0 6px #FF9E1B)} .match.removed{opacity:.12;pointer-events:none}.match.hinted{filter:drop-shadow(0 0 8px #FFC21A)}
+.banner{background:#3A1D08;border:1px solid #FF9E1B;color:#FFE8C2;border-radius:12px;padding:10px;text-align:center;font-weight:900;font-size:13px;line-height:1.4;margin-top:12px}
+.banner strong{color:#FFC21A;display:block;font-family:"Baloo 2";font-size:15px;letter-spacing:.03em}
+.row{display:flex;gap:10px}.row .gbtn{flex:1}
+.stars{color:#FFC21A;font-size:9px;letter-spacing:1px;text-align:center;margin-top:2px;line-height:1}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 10px;margin-top:10px}
+.lvl{display:flex;flex-direction:column;align-items:center}
+.lvl button{width:42px;height:42px;border-radius:50%;border:2px solid #7A2E00;background:radial-gradient(circle at 35% 30%,#FFD34D,#FF7A00 70%);font-family:"Baloo 2";font-size:18px;font-weight:800;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.35);box-shadow:0 4px 0 #7A2E00}
+.lvl button:active{transform:translateY(3px);box-shadow:0 1px 0 #7A2E00}
+.lvl.locked button{background:#3A2A20;color:#9A8878;border-color:#1E140E;box-shadow:none;font-size:18px}
+.lvl.current button{outline:3px solid #FFC21A;outline-offset:2px}
+.set-row{display:flex;justify-content:space-between;align-items:center;padding:9px 2px;border-bottom:1px solid rgba(255,255,255,.08);font-weight:900;letter-spacing:.04em;font-size:13px}
+.toggle{width:66px;height:30px;border-radius:999px;border:2px solid #000;background:#3A2417;position:relative;flex:none;overflow:hidden}
+.toggle:before{content:"";position:absolute;left:6px;right:6px;top:50%;height:7px;transform:translateY(-50%);border-radius:99px;background:linear-gradient(180deg,#F3C98A,#D9A05A)}
+.toggle:after{content:"";position:absolute;top:1px;right:2px;width:18px;height:26px;border-radius:50%;background:radial-gradient(circle at 40% 28%,#FF9E1B,#A63E0E 55%,#5C1F06);transition:.2s;box-shadow:0 0 8px rgba(255,140,0,.7)}
+.toggle[aria-checked="false"]{background:#2A211C}.toggle[aria-checked="false"]:after{right:44px;background:radial-gradient(circle at 40% 28%,#888,#333);box-shadow:none}
+.menu-box{background:#FF8A00;border-radius:16px;padding:10px;margin-top:10px}.menu-box h3{margin:0 0 8px;text-align:center;color:#2B1400;font-family:"Baloo 2";letter-spacing:.08em}
+.menu-box .gbtn{width:100%;margin:4px 0;padding:8px;font-size:14px}
+/* SECTIONS */
+.section{margin-top:36px;background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:22px;box-shadow:var(--shadow)}
+.section h2{font-family:"Baloo 2";font-size:28px;margin:0 0 6px}.section p{color:var(--muted);font-weight:700;line-height:1.6}
+.swatches{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:16px}
+.swatch{border:1px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer;text-align:left;background:var(--surface);padding:0}.swatch i{display:block;height:56px}.swatch div{padding:10px}.swatch b{display:block}.swatch span{color:var(--muted);font-size:12px;font-weight:800}
+.specgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:16px}
+.card{border:1px solid var(--line);border-radius:16px;padding:16px}.card h3{margin:0 0 8px}.card li{margin:6px 0;color:var(--muted);font-weight:700;line-height:1.5}
+table{width:100%;border-collapse:collapse;margin-top:12px}th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);font-size:14px}th{font-weight:900}
+.states{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.demo-btn{border:2px solid #7A2E00;border-radius:999px;padding:11px 18px;font-family:"Baloo 2";font-weight:800;background:linear-gradient(#FFD34D,#FF8A00);color:#2B1400;box-shadow:0 4px 0 #8A3A00}.demo-btn:hover{filter:brightness(1.07)}.demo-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #8A3A00}.demo-btn:disabled{opacity:.45;transform:none;box-shadow:none;cursor:not-allowed}
+pre{background:#17100B;color:#FFE8C2;border-radius:16px;padding:18px;overflow:auto;font-family:"JetBrains Mono",monospace;font-size:12.5px;line-height:1.6;white-space:pre-wrap}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:#1B130E;color:#FFF6E8;padding:12px 16px;border-radius:999px;font-weight:900;opacity:0;pointer-events:none;transition:.25s;z-index:20;box-shadow:0 10px 24px rgba(0,0,0,.3);max-width:90vw;text-align:center}.toast.show{opacity:1;transform:translateX(-50%)}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:700px){.compare{grid-template-columns:1fr}}
+footer{color:var(--muted);font-weight:700;text-align:center;margin-top:28px;line-height:1.6}
+</style></head>
+<body><div class="wrap">
+<header class="top"><div><h1>Matchsticks <span>UI Redesign</span></h1><p class="lede">Same game, same 4 screens, same layout — rebuilt with a tighter hierarchy, one spacing system, and matchsticks you can actually play with. Tap the matches in Level 13, flip the settings toggles, and try every button state below.</p><div class="badges"><span class="badge">🔥 Keeps: Home · Gameplay · Levels · Settings / Pause</span><span class="badge">Tap targets ≥ 44px</span><span class="badge">Contrast ≥ 4.5:1 for body text</span></div></div><button class="btn" onclick="document.getElementById('css').scrollIntoView({behavior:'smooth'})">Jump to CSS ↓</button></header>
+
+<section class="phones" aria-label="Redesigned screens">
+<!-- 1 HOME -->
+<div><div class="phone-label">01 — Home <span>Redesigned</span></div><div class="phone"><div class="screen"><div class="logo-flame">🔥</div><div style="width:10px;height:64px;background:linear-gradient(#FFE9B0,#D9A05A);border-radius:6px;margin:-8px auto 0;border:2px solid #7A4A12"></div><h2 class="game-title">MATCH<small>STICKS</small></h2><button class="gbtn" onclick="toast('▶ Starting Level 13 — your current level')">PLAY &nbsp;🪵</button><button class="gbtn dark" onclick="toast('Opening Levels — 13 of 20 unlocked')">LEVELS</button><button class="gbtn dark" onclick="toast('Opening Settings')">SETTINGS</button><p class="hintline">Continue Level 13 · ⭐ 36 / 60 stars<br>One clear primary action, two secondary — no competing glows.</p></div></div></div>
+
+<!-- 2 GAMEPLAY -->
+<div><div class="phone-label">02 — Gameplay <span>Playable</span></div><div class="phone"><div class="screen"><div class="level-pill">LEVEL 13</div><div class="toprow"><span style="font-weight:900;font-size:13px">⏱ 01:24</span><button class="icon-btn" onclick="toast('Paused — Resume, Restart, Level Select, Settings')" aria-label="Pause">❚❚</button></div>
+<div class="progress"><i id="fill"></i><b id="counter">0 / 2 removed</b></div>
+<div class="board"><svg viewBox="0 0 280 190" width="100%" role="group" aria-label="Matchstick puzzle board"></svg></div>
+<div class="banner"><strong id="objective">REMOVE 2 MATCHES TO MAKE 3 SQUARES</strong><span id="feedback">Tap a match to remove it. The two glowing hints are optional.</span></div>
+<div class="row"><button class="gbtn dark small" onclick="resetPuzzle()">↺ RESET</button><button class="gbtn small" onclick="hint()">HINT 💡</button></div>
+</div></div></div>
+
+<!-- 3 LEVELS -->
+<div><div class="phone-label">03 — Levels <span>Redesigned</span></div><div class="phone"><div class="screen"><h2 class="game-title" style="font-size:36px;margin-top:4px">LEVELS</h2><div class="grid" id="levels"></div><button class="gbtn dark" style="margin-top:auto" onclick="toast('Back to Home')">← &nbsp;BACK</button><p class="hintline">Current level is ringed, not just flaming — findable without colour alone.</p></div></div></div>
+
+<!-- 4 SETTINGS + MENU -->
+<div><div class="phone-label">04 — Settings · Pause <span>Redesigned</span></div><div class="phone"><div class="screen"><div style="display:flex;align-items:center;gap:10px"><button class="icon-btn" onclick="toast('Back')">←</button><h2 class="game-title" style="font-size:30px;margin:0">SETTINGS</h2></div>
+<div id="settings"></div>
+<div class="menu-box"><h3>MENU</h3><button class="gbtn" onclick="toast('Resumed')">RESUME</button><button class="gbtn dark" onclick="toast('Level restarted')">↻ RESTART LEVEL</button><button class="gbtn dark" onclick="toast('Opening Level Select')">LEVEL SELECT</button><button class="gbtn dark" onclick="toast('Already in Settings')">SETTINGS</button><button class="gbtn dark" onclick="toast('Back to Main Menu')">MAIN MENU</button></div>
+</div></div></div>
+</section>
+
+<section class="section"><h2>What changed — and what deliberately didn't</h2><div class="compare"><div class="card"><h3>✅ Kept from your screenshot</h3><ul><li>4-screen flow and order: Home → Gameplay → Levels → Settings/Pause</li><li>Fiery orange-on-charcoal identity, match &amp; flame motifs</li><li>Level 13, “Remove 2 matches” objective, 0/1-style counter (now 0/2, matching the instruction)</li><li>Round level nodes, star ratings, locked levels 14–20, current level 13 ringed, match-shaped toggles</li></ul></div><div class="card"><h3>✨ Improved</h3><ul><li><b>Hierarchy:</b> one primary (gradient) button per screen; everything else is dark/secondary</li><li><b>Consistency:</b> 8-pt spacing, 16px screen padding, 999px pill radius everywhere</li><li><b>Readability:</b> ember texture moved to edges only; board &amp; text sit on flat charcoal</li><li><b>States:</b> hover lift, 4px press-down, disabled, current-level ring + lock icon (not colour alone)</li><li><b>Fix:</b> original grid skipped 7 &amp; 8 — this grid is sequential 1–20</li></ul></div></div></section>
+
+<section class="section"><h2>Colour tokens — tap to copy</h2><p>One palette for the whole game. Gradient is reserved for primary actions and the logo only.</p><div class="swatches" id="swatches"></div></section>
+
+<section class="section"><h2>Type, layout &amp; spacing</h2><div class="specgrid"><div class="card"><h3>Typography</h3><ul><li><b>Display:</b> Baloo 2 ExtraBold — logo 44px, screen titles 30–36px, buttons 16–20px</li><li><b>Body / UI:</b> Nunito ExtraBold — labels 13px, body 14–16px, line-height 1.5</li><li>All-caps only for buttons &amp; titles, letter-spacing +0.04em</li></ul></div><div class="card"><h3>Layout grid</h3><ul><li>Phone frame: 360 × 640 dp reference, radius 36px, 3px ember stroke</li><li>Screen padding: 16px · Section gap: 16px · Button gap: 12px</li><li>Spacing scale: 4 / 8 / 12 / 16 / 24 / 32 (8-pt system)</li><li>Min tap target: 44 × 44px — level nodes are 42px in this compact grid (44px+ in production)</li></ul></div><div class="card"><h3>Matchstick spec</h3><ul><li>Stick: 56 × 8px, #F3C98A → #D9A05A, radius 4px</li><li>Head: 14px circle, #7A2E12 with #A63E0E highlight</li><li>Hit area: 24px around the stick (invisible padding)</li><li>Removed: 12% opacity ghost, so the player sees their progress</li></ul></div></div>
+<h3 style="margin-top:20px">Component states — try them</h3><div class="states"><button class="demo-btn">Default</button><button class="demo-btn" onmouseover="this.textContent='Hover — lifted + brighter'" onmouseout="this.textContent='Hover me'">Hover me</button><button class="demo-btn" onmousedown="this.textContent='Pressed — down 4px'" onmouseup="this.textContent='Press me'">Press me</button><button class="demo-btn" disabled>Disabled</button><span style="font-weight:800;color:var(--muted)">Toggle:</span><button class="toggle" role="switch" aria-checked="true" onclick="toggleSwitch(this)"></button></div>
+<table><tr><th>Component</th><th>Default</th><th>Hover</th><th>Pressed / Active</th><th>Disabled</th></tr><tr><td>Primary button</td><td>Gradient, 5px base shadow</td><td>+6% brightness, −1px</td><td>+4px down, 1px shadow</td><td>45% opacity, no shadow</td></tr><tr><td>Level node</td><td>Orange radial, 3 stars</td><td>Brighten</td><td>+3px down</td><td>Locked: charcoal + 🔒</td></tr><tr><td>Match toggle</td><td>On: orange track, head right</td><td>—</td><td>Head slides 32px, track greys when off</td><td>—</td></tr></table></section>
+
+<section class="section" id="css"><h2>Developer handoff — reusable CSS</h2><p>This is the exact token + component CSS used by the mockup above, stripped of page chrome. Copy it straight into the game.</p><pre id="cssCode">/* Matchsticks — design tokens */
+:root{
+  --charcoal:#1B130E; --charcoal-2:#2A1E16; --panel:#120D0A;
+  --ember:#FF6B0A; --ember-2:#FF9E1B; --flame:#FFC21A; --gold:#FFD34D;
+  --cream:#FFF6E8; --cream-2:#FFE8C2; --muted:#D8C2AE;
+  --brown-stroke:#7A2E00; --success:#22C55E;
+  --font-display:"Baloo 2",system-ui; --font-ui:"Nunito",system-ui;
+  --r-pill:999px; --r-card:18px; --space:8px;
+}
+.btn-primary{ font-family:var(--font-display); font-size:20px; font-weight:800;
+  letter-spacing:.04em; color:#2B1400; padding:13px 20px; border-radius:var(--r-pill);
+  border:2px solid var(--brown-stroke); background:linear-gradient(180deg,var(--gold),#FF8A00);
+  box-shadow:0 5px 0 #8A3A00; transition:transform .15s, filter .15s; }
+.btn-primary:hover{ transform:translateY(-1px); filter:brightness(1.06); }
+.btn-primary:active{ transform:translateY(4px); box-shadow:0 1px 0 #8A3A00; }
+.btn-primary:disabled{ opacity:.45; box-shadow:none; transform:none; }
+.btn-secondary{ /* same geometry, dark fill */ background:linear-gradient(180deg,#4A2E1E,#24150E);
+  color:var(--cream-2); border-color:#0A0603; box-shadow:0 5px 0 #0A0603; }
+.match{ width:56px; height:8px; border-radius:4px; background:linear-gradient(#F3C98A,#D9A05A); position:relative; }
+.match::after{ content:""; position:absolute; right:-4px; top:-3px; width:14px; height:14px;
+  border-radius:50%; background:radial-gradient(circle at 35% 30%,#A63E0E,#7A2E12); }
+.match.is-removed{ opacity:.12; }
+.toggle{ width:64px; height:30px; border-radius:var(--r-pill); background:var(--ember); }
+.toggle[aria-checked="false"]{ background:#4A3A30; }
+.level-node{ width:58px; height:58px; border-radius:50%; font-family:var(--font-display); font-size:22px;
+  background:radial-gradient(circle at 35% 30%,var(--gold),#FF7A00 70%); color:#fff; border:2px solid var(--brown-stroke); }
+.level-node.is-current{ outline:3px solid var(--flame); outline-offset:2px; }
+.level-node.is-locked{ background:#3A2A20; color:#9A8878; }</pre><button class="btn" onclick="copyCSS()">Copy CSS</button> <button class="btn" style="background:var(--surface);color:var(--ink);border:1px solid var(--line)" onclick="downloadCSS()">Download .css file</button></section>
+
+<footer>Before / after note: compare with your original screenshot — layout, screens and game concept are unchanged; only hierarchy, spacing, contrast and states were rebuilt.<br>Mockup is fully interactive in this tab only — no progress is saved.</footer>
+</div><div class="toast" id="toast"></div>
+<script>
+var toastEl=document.getElementById('toast'),tt;function toast(m){toastEl.textContent=m;toastEl.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){toastEl.classList.remove('show')},2600)}
+function toggleSwitch(el){var on=el.getAttribute('aria-checked')==='true';el.setAttribute('aria-checked',String(!on));toast((!on?'On':'Off')+' — setting updated')}
+/* Levels */
+var levelsEl=document.getElementById('levels'),html='';for(var i=1;i<=20;i++){var locked=i>=14&&i!==13,cur=i===13;if(i===13)locked=false; if(i>13)locked=true; html+='<div class="lvl '+(locked?'locked':'')+' '+(cur?'current':'')+'"><button '+(locked?'disabled':'')+' onclick="toast(\'Level '+i+(cur?' — current level':'')+'\')">'+(locked?'🔒':i)+'</button><div class="stars">'+(locked?'':(cur?'★★★':'★★★'))+'</div><div style="font-size:11px;font-weight:900;color:#B9A08A">'+(locked?'Locked':(cur?'Current':'Done'))+'</div></div>'}levelsEl.innerHTML=html;
+/* Settings */
+var settings=[['SOUND EFFECTS',true],['MUSIC',false],['VIBRATION',true],['NOTIFICATIONS',false]];document.getElementById('settings').innerHTML=settings.map(function(s){return '<div class="set-row"><span>'+s[0]+'</span><button class="toggle" role="switch" aria-checked="'+s[1]+'" aria-label="'+s[0]+'" onclick="toggleSwitch(this)"></button></div>'}).join('');
+/* Puzzle — matches as SVG groups */
+var svg=document.querySelector('.board svg');
+var matches=[ // x1,y1,x2,y2, isTarget
+[110,30,170,30,0],[110,30,110,90,0],[170,30,170,90,0],[110,90,170,90,0],
+[50,90,110,90,0],[50,90,50,150,0],[50,150,110,150,0],[110,90,110,150,1],
+[110,150,170,150,0],[170,90,170,150,1],[170,90,230,90,0],[230,90,230,150,0],[170,150,230,150,0]];
+// scale coords to viewBox 280x190: shift x+0, keep
+var removed=0,removedTargets=0;
+matches.forEach(function(m,idx){
+  var g=document.createElementNS('http://www.w3.org/2000/svg','g');g.setAttribute('class','match');g.dataset.target=m[4];
+  var dx=m[2]-m[0],dy=m[3]-m[1],len=Math.hypot(dx,dy),ang=Math.atan2(dy,dx)*180/Math.PI;
+  var line=document.createElementNS('http://www.w3.org/2000/svg','rect');
+  line.setAttribute('x',m[0]);line.setAttribute('y',m[1]-4);line.setAttribute('width',len);line.setAttribute('height',8);line.setAttribute('rx',4);line.setAttribute('fill','#E8B878');line.setAttribute('transform','rotate('+ang+' '+m[0]+' '+m[1]+')');
+  var head=document.createElementNS('http://www.w3.org/2000/svg','circle');
+  head.setAttribute('cx',m[2]);head.setAttribute('cy',m[3]);head.setAttribute('r',7);head.setAttribute('fill','#8A3312');head.setAttribute('stroke','#C65A1A');head.setAttribute('stroke-width',2);
+  var hit=document.createElementNS('http://www.w3.org/2000/svg','line');hit.setAttribute('x1',m[0]);hit.setAttribute('y1',m[1]);hit.setAttribute('x2',m[2]);hit.setAttribute('y2',m[3]);hit.setAttribute('stroke','transparent');hit.setAttribute('stroke-width',24);
+  g.appendChild(line);g.appendChild(head);g.appendChild(hit);
+  g.addEventListener('click',function(){ if(g.classList.contains('removed'))return; if(removed>=2){toast('Already removed 2 — Reset to try again');return} g.classList.add('removed');removed++; if(g.dataset.target==='1')removedTargets++; update(); });
+  svg.appendChild(g);
+});
+function update(){document.getElementById('counter').textContent=removed+' / 2 removed';document.getElementById('fill').style.width=(8+removed*44)+'%';
+ if(removed===2){ if(removedTargets===2){document.getElementById('feedback').innerHTML='🎉 <b style="color:#7CFC9A">Solved!</b> 3 squares remain — ⭐⭐⭐ earned';toast('🎉 Level 13 solved — 3 stars!')} else {document.getElementById('feedback').textContent='Not quite — that leaves the wrong shapes. Reset or use Hint and try the shared sides.';toast('Not quite — try Reset and use Hint')} }}
+function resetPuzzle(){removed=0;removedTargets=0;document.querySelectorAll('.board .match').forEach(function(g){g.classList.remove('removed','hinted')});document.getElementById('feedback').textContent='Tap a match to remove it. The two glowing hints are optional.';update();document.getElementById('fill').style.width='8%';document.getElementById('counter').textContent='0 / 2 removed'}
+function hint(){document.querySelectorAll('.board .match').forEach(function(g){if(g.dataset.target==='1'&&!g.classList.contains('removed'))g.classList.add('hinted')});toast('Hint: remove the two shared vertical matches in the middle row')}
+/* Swatches */
+var colors=[['Charcoal','#1B130E','--charcoal · Board / panels'],['Ember','#FF6B0A','--ember · Primary gradient end'],['Flame Yellow','#FFC21A','--flame · Stars, current ring'],['Gold','#FFD34D','--gold · Gradient start'],['Cream','#FFF6E8','--cream · Text on dark'],['Muted Cream','#D8C2AE','--muted · Secondary text on dark'],['Success','#22C55E','--success · Solved state'],['Locked','#3A2A20','Locked node fill']];
+document.getElementById('swatches').innerHTML=colors.map(function(c){return '<button class="swatch" onclick="copyText(\''+c[1]+'\')"><i style="background:'+c[1]+'"></i><div><b>'+c[0]+'</b><span>'+c[1]+' · '+c[2]+'</span></div></button>'}).join('');
+function copyText(t){ if(navigator.clipboard)navigator.clipboard.writeText(t); toast('Copied '+t) }
+function copyCSS(){copyText(document.getElementById('cssCode').textContent)}
+function downloadCSS(){var b=new Blob([document.getElementById('cssCode').textContent],{type:'text/css'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='matchsticks-tokens.css';a.click();toast('Downloaded matchsticks-tokens.css')}
+</script></body></html>
