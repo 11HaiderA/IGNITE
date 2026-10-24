@@ -45,3 +45,8 @@ yarn-error.*
 *.apk
 scratch*
 
+# Root temporary test images & scratch
+/*.png
+/*.jpg
+/*.mp3
+
