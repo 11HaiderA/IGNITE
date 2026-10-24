@@ -1,23 +1,29 @@
-// Match Sticks — Production AdMob Service for Interstitial Ads
+// IGNITE — Production AdMob Service for Interstitial Ads
 // App ID: ca-app-pub-8090216489030865~9846910244
 // Ad Unit ID: ca-app-pub-8090216489030865/6886980079
-
-import { Platform } from 'react-native';
 
 export const ADMOB_APP_ID = 'ca-app-pub-8090216489030865~9846910244';
 export const ADMOB_INTERSTITIAL_ID = 'ca-app-pub-8090216489030865/6886980079';
 
 let GoogleMobileAds = null;
 let isNativeAdMobAvailable = false;
+let checkedNative = false;
 
-try {
-  // Dynamically require to avoid crashing in environments without native binary (Expo Go, web)
-  GoogleMobileAds = require('react-native-google-mobile-ads');
-  if (GoogleMobileAds && GoogleMobileAds.InterstitialAd) {
-    isNativeAdMobAvailable = true;
+function getGoogleMobileAds() {
+  if (checkedNative) return GoogleMobileAds;
+  checkedNative = true;
+  try {
+    const mod = require('react-native-google-mobile-ads');
+    if (mod) {
+      GoogleMobileAds = mod;
+      isNativeAdMobAvailable = true;
+      return GoogleMobileAds;
+    }
+  } catch (e) {
+    isNativeAdMobAvailable = false;
+    GoogleMobileAds = null;
   }
-} catch (e) {
-  isNativeAdMobAvailable = false;
+  return null;
 }
 
 class AdMobManager {
@@ -30,12 +36,16 @@ class AdMobManager {
   }
 
   async initialize() {
-    if (this.initStarted || !isNativeAdMobAvailable) return;
+    if (this.initStarted) return;
     this.initStarted = true;
 
     try {
-      if (GoogleMobileAds.default) {
-        await GoogleMobileAds.default().initialize();
+      const gma = getGoogleMobileAds();
+      if (!gma) return;
+
+      const initFn = gma.default || gma;
+      if (typeof initFn === 'function') {
+        await initFn().initialize();
       }
       this.setupInterstitial();
     } catch (e) {
@@ -44,12 +54,18 @@ class AdMobManager {
   }
 
   setupInterstitial() {
-    if (!isNativeAdMobAvailable) return;
+    const gma = getGoogleMobileAds();
+    if (!gma) return;
 
     try {
-      const { InterstitialAd, AdEventType, TestIds } = GoogleMobileAds;
+      const InterstitialAd = gma.InterstitialAd || (gma.default && gma.default.InterstitialAd);
+      const AdEventType = gma.AdEventType || (gma.default && gma.default.AdEventType);
+      const TestIds = gma.TestIds || (gma.default && gma.default.TestIds);
+
+      if (!InterstitialAd) return;
+
       // In standalone / production build, use user's verified AdMob ID
-      const unitId = __DEV__ ? TestIds.INTERSTITIAL : ADMOB_INTERSTITIAL_ID;
+      const unitId = __DEV__ && TestIds ? TestIds.INTERSTITIAL : ADMOB_INTERSTITIAL_ID;
 
       this.interstitial = InterstitialAd.createForAdRequest(unitId, {
         requestNonPersonalizedAdsOnly: true,

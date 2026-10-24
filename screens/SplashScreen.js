@@ -40,21 +40,42 @@ export default function SplashScreen({ onFinish, muted = false }) {
   };
 
   useEffect(() => {
+    if (!player) {
+      reveal();
+      finish();
+      return;
+    }
     let started = false;
-    const start = () => { if (!started) { started = true; player.play(); } };
-    if (player.status === 'readyToPlay') start();
-    const statusSub = player.addListener('statusChange', ({ status }) => {
-      if (status === 'readyToPlay') start();
-      if (status === 'error') { reveal(); finish(); }
-    });
-    const endSub = player.addListener('playToEnd', finish);
-    const skipT = setTimeout(() => setCanSkip(true), SKIP_AFTER_MS);
-    const revealFallback = setTimeout(reveal, 1200); // if onFirstFrameRender isn't supported
-    const maxT = setTimeout(finish, MAX_MS);
-    return () => {
-      statusSub.remove(); endSub.remove();
-      clearTimeout(skipT); clearTimeout(revealFallback); clearTimeout(maxT);
+    const start = () => {
+      try {
+        if (!started) {
+          started = true;
+          player.play();
+        }
+      } catch (e) {
+        reveal();
+        finish();
+      }
     };
+    try {
+      if (player.status === 'readyToPlay') start();
+      const statusSub = player.addListener('statusChange', ({ status }) => {
+        if (status === 'readyToPlay') start();
+        if (status === 'error') { reveal(); finish(); }
+      });
+      const endSub = player.addListener('playToEnd', finish);
+      const skipT = setTimeout(() => setCanSkip(true), SKIP_AFTER_MS);
+      const revealFallback = setTimeout(reveal, 1000); // if onFirstFrameRender isn't supported
+      const maxT = setTimeout(finish, MAX_MS);
+      return () => {
+        try { statusSub.remove(); } catch (e) {}
+        try { endSub.remove(); } catch (e) {}
+        clearTimeout(skipT); clearTimeout(revealFallback); clearTimeout(maxT);
+      };
+    } catch (e) {
+      reveal();
+      finish();
+    }
   }, [player]);
 
   return (

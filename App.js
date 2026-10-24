@@ -29,6 +29,28 @@ import adMobService from './src/services/AdMobService';
 // Native splash screen prevented from auto-hiding until video splash screen mounts
 NativeSplash.preventAutoHideAsync().catch(() => {});
 
+class RootErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(error, errorInfo) {
+    NativeSplash.hideAsync().catch(() => {});
+    if (this.props.onError) {
+      this.props.onError(error);
+    }
+  }
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback || null;
+    }
+    return this.props.children;
+  }
+}
+
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -108,15 +130,26 @@ export default function App() {
   // Display animated splash screen immediately (does not block on font loading)
   if (showSplash) {
     return (
-      <SplashScreenView
-        muted={!soundEnabled}
-        onFinish={() => {
+      <RootErrorBoundary
+        fallback={null}
+        onError={() => {
           setShowSplash(false);
+          NativeSplash.hideAsync().catch(() => {});
           SoundManager.initAudio().then(() => {
             SoundManager.startMusic(1500);
-          });
+          }).catch(() => {});
         }}
-      />
+      >
+        <SplashScreenView
+          muted={!soundEnabled}
+          onFinish={() => {
+            setShowSplash(false);
+            SoundManager.initAudio().then(() => {
+              SoundManager.startMusic(1500);
+            }).catch(() => {});
+          }}
+        />
+      </RootErrorBoundary>
     );
   }
 
