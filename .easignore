@@ -1,0 +1,17 @@
+# EAS Build ignore
+*.aab
+*.apk
+concepts/
+ms-gameplay/
+ms-splash/
+ms-splash (1)/
+fix/
+web/
+*.mp4
+!assets/splash/match-sticks-splash.mp4
+assets/splash/match-sticks-splash-original.mp4
+assets/splash/match_burn_user.wav
+*.png
+!assets/**/*.png
+*.jpg
+!assets/**/*.jpg
