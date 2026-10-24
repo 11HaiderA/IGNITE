@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Match Sticks",
+    "name": "IGNITE",
     "slug": "match-sticks",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -45,6 +45,14 @@
         "react-native-google-mobile-ads",
         {
           "androidAppId": "ca-app-pub-8090216489030865~9846910244"
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "buildArchs": ["arm64-v8a", "armeabi-v7a"]
+          }
         }
       ]
     ],

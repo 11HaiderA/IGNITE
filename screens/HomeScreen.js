@@ -329,7 +329,7 @@ export default function HomeScreen({
             },
           ]}
         >
-          <GradientTitle text="MATCH STICKS" fontSize={titleFontSize} />
+          <GradientTitle text="IGNITE" fontSize={titleFontSize} />
           <Text style={styles.tagline}>IGNITE YOUR MIND</Text>
         </Animated.View>
 
