@@ -11,7 +11,7 @@
       "supportsTablet": true
     },
     "android": {
-      "package": "com.sammad.matchsticks",
+      "package": "com.ignite.puzzle",
       "adaptiveIcon": {
         "backgroundColor": "#202636",
         "foregroundImage": "./assets/android-icon-foreground.png",
