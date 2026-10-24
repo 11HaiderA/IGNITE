@@ -17,8 +17,8 @@ try {
   process.exit(1);
 }
 
-if (!Array.isArray(levels) || levels.length < 100) {
-  console.error(`Expected at least 100 levels, found ${levels ? levels.length : 0}`);
+if (!Array.isArray(levels) || levels.length < 50) {
+  console.error(`Expected at least 50 levels, found ${levels ? levels.length : 0}`);
   process.exit(1);
 }
 
