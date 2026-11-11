@@ -1,4 +1,4 @@
-// IGNITE — Production AdMob Service for Interstitial Ads
+// MATCH STICKS — Production AdMob Service for Interstitial Ads
 // App ID: ca-app-pub-8090216489030865~9846910244
 // Ad Unit ID: ca-app-pub-8090216489030865/6886980079
 
@@ -19,7 +19,7 @@ function getGoogleMobileAds() {
       isNativeAdMobAvailable = true;
       return GoogleMobileAds;
     }
-  } catch (e) {
+  } catch (_e) {
     isNativeAdMobAvailable = false;
     GoogleMobileAds = null;
   }
@@ -33,6 +33,9 @@ class AdMobManager {
     this.isLoading = false;
     this.initStarted = false;
     this.onAdClosedCallback = null;
+    this.retryTimeout = null;
+    this.retryAttempts = 0;
+    this.unsubscribers = [];
   }
 
   async initialize() {
@@ -47,13 +50,17 @@ class AdMobManager {
       if (typeof initFn === 'function') {
         await initFn().initialize();
       }
-      this.setupInterstitial();
+      this.createAndLoad();
     } catch (e) {
       if (__DEV__) console.warn('AdMob initialize error:', e);
     }
   }
 
-  setupInterstitial() {
+  // Google Mobile Ads requires a fresh InterstitialAd instance for each impression.
+  // Re-using a spent ad instance causes silent failure or "ad already shown" error.
+  createAndLoad() {
+    if (this.isLoading || this.isLoaded) return;
+
     const gma = getGoogleMobileAds();
     if (!gma) return;
 
@@ -62,51 +69,86 @@ class AdMobManager {
       const AdEventType = gma.AdEventType || (gma.default && gma.default.AdEventType);
       const TestIds = gma.TestIds || (gma.default && gma.default.TestIds);
 
-      if (!InterstitialAd) return;
+      if (!InterstitialAd || !AdEventType) return;
 
-      // In standalone / production build, use user's verified AdMob ID
+      // Clean up previous listeners & instance
+      this.cleanUpCurrentAd();
+
+      // In development / emulator, use Google's official test interstitial ID
       const unitId = __DEV__ && TestIds ? TestIds.INTERSTITIAL : ADMOB_INTERSTITIAL_ID;
 
       this.interstitial = InterstitialAd.createForAdRequest(unitId, {
         requestNonPersonalizedAdsOnly: true,
       });
 
-      this.interstitial.addAdEventListener(AdEventType.LOADED, () => {
+      const unsubLoaded = this.interstitial.addAdEventListener(AdEventType.LOADED, () => {
         this.isLoaded = true;
         this.isLoading = false;
+        this.retryAttempts = 0;
+        if (this.retryTimeout) {
+          clearTimeout(this.retryTimeout);
+          this.retryTimeout = null;
+        }
       });
 
-      this.interstitial.addAdEventListener(AdEventType.CLOSED, () => {
+      const unsubClosed = this.interstitial.addAdEventListener(AdEventType.CLOSED, () => {
         this.isLoaded = false;
+        this.isLoading = false;
         if (this.onAdClosedCallback) {
           const cb = this.onAdClosedCallback;
           this.onAdClosedCallback = null;
           cb();
         }
-        // Automatically preload the next ad
-        this.loadNext();
+        // Immediately prepare the next fresh interstitial instance
+        this.cleanUpCurrentAd();
+        this.createAndLoad();
       });
 
-      this.interstitial.addAdEventListener(AdEventType.ERROR, (error) => {
+      const unsubError = this.interstitial.addAdEventListener(AdEventType.ERROR, (error) => {
         this.isLoaded = false;
         this.isLoading = false;
-        if (__DEV__) console.warn('AdMob Interstitial error:', error);
+        if (__DEV__) console.warn('AdMob Interstitial load/show error:', error);
+
+        // If an ad was mid-show, ensure the game callback still fires
+        if (this.onAdClosedCallback) {
+          const cb = this.onAdClosedCallback;
+          this.onAdClosedCallback = null;
+          cb();
+        }
+
+        this.cleanUpCurrentAd();
+
+        // Exponential backoff retry (5s, 10s, 20s, up to 30s)
+        this.retryAttempts = Math.min(this.retryAttempts + 1, 4);
+        const delay = Math.min(30000, 5000 * Math.pow(1.5, this.retryAttempts - 1));
+        if (this.retryTimeout) clearTimeout(this.retryTimeout);
+        this.retryTimeout = setTimeout(() => {
+          this.createAndLoad();
+        }, delay);
       });
 
-      this.loadNext();
-    } catch (e) {
-      if (__DEV__) console.warn('Error setting up AdMob interstitial:', e);
-    }
-  }
-
-  loadNext() {
-    if (!this.interstitial || this.isLoading || this.isLoaded) return;
-    try {
+      this.unsubscribers = [unsubLoaded, unsubClosed, unsubError];
       this.isLoading = true;
       this.interstitial.load();
     } catch (e) {
       this.isLoading = false;
+      this.isLoaded = false;
+      if (__DEV__) console.warn('Error creating AdMob interstitial:', e);
     }
+  }
+
+  cleanUpCurrentAd() {
+    if (this.unsubscribers && this.unsubscribers.length > 0) {
+      this.unsubscribers.forEach((unsub) => {
+        if (typeof unsub === 'function') {
+          try {
+            unsub();
+          } catch (_e) {}
+        }
+      });
+      this.unsubscribers = [];
+    }
+    this.interstitial = null;
   }
 
   showInterstitial({ onComplete, onFallback }) {
@@ -116,18 +158,27 @@ class AdMobManager {
         this.interstitial.show();
         return true;
       } catch (err) {
+        if (__DEV__) console.warn('AdMob show exception:', err);
         this.onAdClosedCallback = null;
-        if (onFallback) onFallback();
+        this.isLoaded = false;
+        this.cleanUpCurrentAd();
+        if (onFallback) {
+          onFallback();
+        } else if (onComplete) {
+          onComplete();
+        }
+        this.createAndLoad();
         return false;
       }
     } else {
-      // In Expo Go or when ad is buffering, seamlessly fallback so gameplay is never blocked
+      // In Expo Go, during network buffering, or when offline:
+      // Trigger fallback so the player's reward and gameplay are never blocked.
       if (onFallback) {
         onFallback();
       } else if (onComplete) {
         onComplete();
       }
-      this.loadNext();
+      this.createAndLoad();
       return false;
     }
   }

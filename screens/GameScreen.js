@@ -378,10 +378,20 @@ export default function GameScreen({ level = 1, onBack, onLevels, onHome, onNext
       resetCurrentBoard();
     } else if (purpose === 'hint') {
       setUsedHint(true);
+      // Reset board to pristine state so the hint matches the board pieces 100%
+      setCurState(clone(puzzleState));
+      setMovesTaken(0);
+      setBurningSticks(new Set());
+      setBurnedSticks(new Set());
+      setShowSmoke(false);
+      setMoveHistory([]);
+      setIsLocked(false);
+
       const sols = solve(puzzleState, levelInfo?.mode || 'move-1');
       if (sols && sols.length > 0) {
         setHint(sols[0]);
         setPicked(sols[0].from);
+        SoundManager.playSfx('stick_pick');
       }
     }
   };
@@ -685,8 +695,17 @@ export default function GameScreen({ level = 1, onBack, onLevels, onHome, onNext
                   setWinVisible(false);
                   const nextLvl = currentLevel + 1;
                   saveCurrentLevel(nextLvl);
-                  loadLevel(nextLvl);
-                  if (onNextLevel) onNextLevel(nextLvl);
+                  // Seamlessly display interstitial ad between levels
+                  adMobService.showInterstitial({
+                    onComplete: () => {
+                      loadLevel(nextLvl);
+                      if (onNextLevel) onNextLevel(nextLvl);
+                    },
+                    onFallback: () => {
+                      loadLevel(nextLvl);
+                      if (onNextLevel) onNextLevel(nextLvl);
+                    },
+                  });
                 }}
                 style={styles.winBtn}
               />

@@ -8,10 +8,11 @@
     "userInterfaceStyle": "dark",
     "backgroundColor": "#000000",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.matchsticks.puzzle"
     },
     "android": {
-      "package": "com.ignite.puzzle",
+      "package": "com.matchsticks.puzzle",
       "adaptiveIcon": {
         "backgroundColor": "#202636",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -44,7 +45,8 @@
       [
         "react-native-google-mobile-ads",
         {
-          "androidAppId": "ca-app-pub-8090216489030865~9846910244"
+          "androidAppId": "ca-app-pub-8090216489030865~9846910244",
+          "iosAppId": "ca-app-pub-8090216489030865~9846910244"
         }
       ],
       [
