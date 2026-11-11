@@ -56,16 +56,20 @@
             "enableMinifyInReleaseBuilds": false,
             "enableProguardInReleaseBuilds": false,
             "proguardRules": "-keep class expo.modules.** { *; }\n-keep class com.google.android.gms.ads.** { *; }\n-keep class com.facebook.react.** { *; }",
-            "buildArchs": ["arm64-v8a", "armeabi-v7a", "x86_64"]
+            "buildArchs": [
+              "arm64-v8a",
+              "armeabi-v7a",
+              "x86_64"
+            ]
           }
         }
       ]
     ],
+    "owner": "haideralirajas-team",
     "extra": {
       "eas": {
-        "projectId": "6e459d81-105e-4d9c-b98a-5774118d0552"
+        "projectId": "c19d3530-34e3-4d1a-b299-938511b0ad27"
       }
-    },
-    "owner": "haiderali110s-team"
+    }
   }
 }
