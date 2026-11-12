@@ -58,9 +58,6 @@
         "expo-build-properties",
         {
           "android": {
-            "compileSdkVersion": 36,
-            "targetSdkVersion": 36,
-            "buildToolsVersion": "36.0.0",
             "enableMinifyInReleaseBuilds": false,
             "enableProguardInReleaseBuilds": false,
             "proguardRules": "-keep class expo.modules.** { *; }\n-keep class com.google.android.gms.ads.** { *; }\n-keep class com.facebook.react.** { *; }",
