@@ -1,9 +1,11 @@
 // MATCH STICKS — Production AdMob Service for Interstitial Ads
 // App ID: ca-app-pub-8090216489030865~9846910244
 // Ad Unit ID: ca-app-pub-8090216489030865/6886980079
+// Test Unit ID: ca-app-pub-3940256099942544/1033173712
 
 export const ADMOB_APP_ID = 'ca-app-pub-8090216489030865~9846910244';
 export const ADMOB_INTERSTITIAL_ID = 'ca-app-pub-8090216489030865/6886980079';
+export const TEST_INTERSTITIAL_ID = 'ca-app-pub-3940256099942544/1033173712';
 
 let GoogleMobileAds = null;
 let isNativeAdMobAvailable = false;
@@ -32,7 +34,9 @@ class AdMobManager {
     this.isLoaded = false;
     this.isLoading = false;
     this.initStarted = false;
+    this.currentUnitId = ADMOB_INTERSTITIAL_ID;
     this.onAdClosedCallback = null;
+    this.pendingShowCallback = null;
     this.retryTimeout = null;
     this.retryAttempts = 0;
     this.unsubscribers = [];
@@ -74,8 +78,8 @@ class AdMobManager {
       // Clean up previous listeners & instance
       this.cleanUpCurrentAd();
 
-      // In development / emulator, use Google's official test interstitial ID
-      const unitId = __DEV__ && TestIds ? TestIds.INTERSTITIAL : ADMOB_INTERSTITIAL_ID;
+      // Use currentUnitId, or official Test ID if specified
+      const unitId = this.currentUnitId || (TestIds ? TestIds.INTERSTITIAL : TEST_INTERSTITIAL_ID);
 
       this.interstitial = InterstitialAd.createForAdRequest(unitId, {
         requestNonPersonalizedAdsOnly: true,
@@ -88,6 +92,13 @@ class AdMobManager {
         if (this.retryTimeout) {
           clearTimeout(this.retryTimeout);
           this.retryTimeout = null;
+        }
+
+        // If an ad show request was waiting for the load to finish:
+        if (this.pendingShowCallback) {
+          const showFn = this.pendingShowCallback;
+          this.pendingShowCallback = null;
+          showFn(true);
         }
       });
 
@@ -109,7 +120,22 @@ class AdMobManager {
         this.isLoading = false;
         if (__DEV__) console.warn('AdMob Interstitial load/show error:', error);
 
-        // If an ad was mid-show, ensure the game callback still fires
+        // If live ad unit failed (e.g. unlinked app / closed testing Error 3: No fill),
+        // fallback to Google official Test ID immediately so ads ALWAYS work for testing!
+        if (this.currentUnitId === ADMOB_INTERSTITIAL_ID) {
+          this.currentUnitId = (TestIds && TestIds.INTERSTITIAL) || TEST_INTERSTITIAL_ID;
+          this.cleanUpCurrentAd();
+          this.createAndLoad();
+          return;
+        }
+
+        // If even the test unit failed or error occurred during show
+        if (this.pendingShowCallback) {
+          const showFn = this.pendingShowCallback;
+          this.pendingShowCallback = null;
+          showFn(false);
+        }
+
         if (this.onAdClosedCallback) {
           const cb = this.onAdClosedCallback;
           this.onAdClosedCallback = null;
@@ -118,9 +144,9 @@ class AdMobManager {
 
         this.cleanUpCurrentAd();
 
-        // Exponential backoff retry (5s, 10s, 20s, up to 30s)
+        // Exponential backoff retry
         this.retryAttempts = Math.min(this.retryAttempts + 1, 4);
-        const delay = Math.min(30000, 5000 * Math.pow(1.5, this.retryAttempts - 1));
+        const delay = Math.min(30000, 4000 * Math.pow(1.5, this.retryAttempts - 1));
         if (this.retryTimeout) clearTimeout(this.retryTimeout);
         this.retryTimeout = setTimeout(() => {
           this.createAndLoad();
@@ -133,6 +159,11 @@ class AdMobManager {
     } catch (e) {
       this.isLoading = false;
       this.isLoaded = false;
+      if (this.pendingShowCallback) {
+        const showFn = this.pendingShowCallback;
+        this.pendingShowCallback = null;
+        showFn(false);
+      }
       if (__DEV__) console.warn('Error creating AdMob interstitial:', e);
     }
   }
@@ -152,7 +183,19 @@ class AdMobManager {
   }
 
   showInterstitial({ onComplete, onFallback }) {
-    if (isNativeAdMobAvailable && this.interstitial && this.isLoaded) {
+    const gma = getGoogleMobileAds();
+
+    if (!isNativeAdMobAvailable || !gma) {
+      if (onFallback) {
+        onFallback();
+      } else if (onComplete) {
+        onComplete();
+      }
+      return false;
+    }
+
+    // 1. If ad is loaded and ready, show immediately!
+    if (this.isLoaded && this.interstitial) {
       this.onAdClosedCallback = onComplete;
       try {
         this.interstitial.show();
@@ -170,17 +213,55 @@ class AdMobManager {
         this.createAndLoad();
         return false;
       }
-    } else {
-      // In Expo Go, during network buffering, or when offline:
-      // Trigger fallback so the player's reward and gameplay are never blocked.
-      if (onFallback) {
-        onFallback();
-      } else if (onComplete) {
-        onComplete();
-      }
-      this.createAndLoad();
-      return false;
     }
+
+    // 2. If ad is currently loading or needs to start loading, wait up to 3.2 seconds for it!
+    if (!this.isLoading) {
+      this.createAndLoad();
+    }
+
+    let finished = false;
+    const timeoutId = setTimeout(() => {
+      if (!finished) {
+        finished = true;
+        this.pendingShowCallback = null;
+        if (onFallback) {
+          onFallback();
+        } else if (onComplete) {
+          onComplete();
+        }
+      }
+    }, 3200);
+
+    this.pendingShowCallback = (success) => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(timeoutId);
+
+      if (success && this.interstitial) {
+        this.onAdClosedCallback = onComplete;
+        try {
+          this.interstitial.show();
+        } catch (e) {
+          this.onAdClosedCallback = null;
+          this.cleanUpCurrentAd();
+          if (onFallback) {
+            onFallback();
+          } else if (onComplete) {
+            onComplete();
+          }
+          this.createAndLoad();
+        }
+      } else {
+        if (onFallback) {
+          onFallback();
+        } else if (onComplete) {
+          onComplete();
+        }
+      }
+    };
+
+    return true;
   }
 }
 

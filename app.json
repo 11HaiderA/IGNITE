@@ -13,7 +13,7 @@
     },
     "android": {
       "package": "com.matchsticks.puzzle",
-      "versionCode": 2,
+      "versionCode": 3,
       "adaptiveIcon": {
         "backgroundColor": "#202636",
         "foregroundImage": "./assets/android-icon-foreground.png",
