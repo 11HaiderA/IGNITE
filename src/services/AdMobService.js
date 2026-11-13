@@ -105,6 +105,8 @@ class AdMobManager {
       const unsubClosed = this.interstitial.addAdEventListener(AdEventType.CLOSED, () => {
         this.isLoaded = false;
         this.isLoading = false;
+        // Always reset back to production ad unit so real ads are attempted first every time
+        this.currentUnitId = ADMOB_INTERSTITIAL_ID;
         if (this.onAdClosedCallback) {
           const cb = this.onAdClosedCallback;
           this.onAdClosedCallback = null;
@@ -149,6 +151,7 @@ class AdMobManager {
         const delay = Math.min(30000, 4000 * Math.pow(1.5, this.retryAttempts - 1));
         if (this.retryTimeout) clearTimeout(this.retryTimeout);
         this.retryTimeout = setTimeout(() => {
+          this.currentUnitId = ADMOB_INTERSTITIAL_ID;
           this.createAndLoad();
         }, delay);
       });
