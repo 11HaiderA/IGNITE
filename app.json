@@ -13,7 +13,7 @@
     },
     "android": {
       "package": "com.matchsticks.puzzle",
-      "versionCode": 3,
+      "versionCode": 4,
       "adaptiveIcon": {
         "backgroundColor": "#202636",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -50,8 +50,8 @@
       [
         "react-native-google-mobile-ads",
         {
-          "androidAppId": "ca-app-pub-8090216489030865~9846910244",
-          "iosAppId": "ca-app-pub-8090216489030865~9846910244"
+          "androidAppId": "ca-app-pub-8090216489030865~2763064514",
+          "iosAppId": "ca-app-pub-8090216489030865~2763064514"
         }
       ],
       [

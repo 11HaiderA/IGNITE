@@ -1,10 +1,10 @@
 // MATCH STICKS — Production AdMob Service for Interstitial Ads
-// App ID: ca-app-pub-8090216489030865~9846910244
-// Ad Unit ID: ca-app-pub-8090216489030865/6886980079
+// App ID: ca-app-pub-8090216489030865~2763064514
+// Ad Unit ID: ca-app-pub-8090216489030865/5022482067
 // Test Unit ID: ca-app-pub-3940256099942544/1033173712
 
-export const ADMOB_APP_ID = 'ca-app-pub-8090216489030865~9846910244';
-export const ADMOB_INTERSTITIAL_ID = 'ca-app-pub-8090216489030865/6886980079';
+export const ADMOB_APP_ID = 'ca-app-pub-8090216489030865~2763064514';
+export const ADMOB_INTERSTITIAL_ID = 'ca-app-pub-8090216489030865/5022482067';
 export const TEST_INTERSTITIAL_ID = 'ca-app-pub-3940256099942544/1033173712';
 
 let GoogleMobileAds = null;
